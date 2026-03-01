@@ -129,9 +129,15 @@ const totalPosts = page.total;
 
     const onIdle = window.requestIdleCallback || (cb => setTimeout(cb, 1));
     onIdle(async () => {
+      if (signal.aborted) return;
+      if (container.childElementCount > 0) return;
+
       // @ts-expect-error
       const { PagefindUI } = await import("@pagefind/default-ui");
-      
+
+      // Navigation may have occurred while the module was loading (first load, uncached)
+      if (signal.aborted || container.childElementCount > 0) return;
+
       if (import.meta.env.DEV) {
         container.innerHTML = `
           <div class="bg-muted/75 rounded p-4 text-sm mb-4 border border-border">
@@ -192,7 +198,6 @@ const totalPosts = page.total;
   }
 
   document.addEventListener("astro:page-load", initPostsPage);
-  document.addEventListener("astro:after-swap", initPostsPage);
 </script>
 
 <style>
