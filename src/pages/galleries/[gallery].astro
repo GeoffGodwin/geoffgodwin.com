@@ -27,7 +27,7 @@ const { entry } = Astro.props;
 const { gallery: slug } = Astro.params;
 const { title, description, pubDatetime, coverImage, tags } = entry.data;
 
-// Cargar todas las imágenes de la galería en build-time con un glob estático
+// Load all gallery images at build-time using a static glob
 const allImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/data/galleries/**/*.{jpg,jpeg,png,webp,avif,gif,JPG,JPEG,PNG,WEBP}",
   { eager: true }
@@ -38,9 +38,9 @@ type GalleryImage = { src: ImageMetadata; alt: string; filename: string };
 function filenameToAlt(filename: string): string {
   return (
     filename
-      .replace(/\.[^.]+$/, "") // quitar extensión
-      .replace(/^\d+[-_]?/, "") // quitar número inicial
-      .replace(/[-_]/g, " ") // guiones/underscores → espacios
+      .replace(/\.[^.]+$/, "") // strip extension
+      .replace(/^\d+[-_]?/, "") // strip leading number
+      .replace(/[-_]/g, " ") // hyphens/underscores → spaces
       .replace(/\b\w/g, c => c.toUpperCase()) // capitalizar
       .trim() || title
   );
@@ -57,17 +57,17 @@ const images: GalleryImage[] = Object.entries(allImages)
     return { src: mod.default, alt: filenameToAlt(filename), filename };
   });
 
-// Si el frontmatter tiene coverImage, incluirla al inicio si no ya está en la lista
+// If frontmatter has a coverImage, include it at the start if not already in the list
 const hasCoverInFolder = coverImage
   ? images.some(img => img.src.src === coverImage.src)
   : false;
 ---
 
-<Layout title={`${title} | Galerías | ${SITE.title}`} description={description}>
+<Layout title={`${title} | Galleries | ${SITE.title}`} description={description}>
   <Header />
   <Breadcrumb />
   <main id="main-content" class="app-layout pb-16">
-    <!-- Header de la galería -->
+    <!-- Gallery header -->
     <header class="gallery-detail-header">
       <div class="mb-1">
         <Datetime pubDatetime={pubDatetime} class="text-sm" />
@@ -89,11 +89,11 @@ const hasCoverInFolder = coverImage
       }
       <p class="mt-4 text-sm text-foreground/50">
         {images.length}
-        {images.length === 1 ? "imagen" : "imágenes"}
+        {images.length === 1 ? "image" : "images"}
       </p>
     </header>
 
-    <!-- Cubierta grande (si está definida en frontmatter y no está en la carpeta) -->
+    <!-- Cover image (if defined in frontmatter and not already in folder) -->
     {
       coverImage && !hasCoverInFolder && (
         <div class="mb-8 overflow-hidden rounded-2xl">
@@ -109,14 +109,14 @@ const hasCoverInFolder = coverImage
       )
     }
 
-    <!-- Grid de imágenes -->
+    <!-- Image grid -->
     {
       images.length > 0 ? (
         <ul
           class="gallery-grid mt-6"
           id="gallery-grid"
           role="list"
-          aria-label={`Imágenes de ${title}`}
+          aria-label={`Images: ${title}`}
         >
           {images.map((img, idx) => (
             <li>
@@ -143,7 +143,7 @@ const hasCoverInFolder = coverImage
         </ul>
       ) : (
         <p class="mt-12 text-center text-foreground/50 italic">
-          Esta galería todavía no tiene imágenes.
+          This gallery has no images yet.
         </p>
       )
     }
@@ -227,7 +227,7 @@ const hasCoverInFolder = coverImage
 </dialog>
 
 <script>
-  // Construir array de imágenes desde el DOM
+  // Build image array from DOM
   function initGallery() {
     const grid = document.getElementById("gallery-grid");
     const lightbox = document.getElementById(

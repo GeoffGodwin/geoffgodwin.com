@@ -3,7 +3,7 @@ import { SITE } from "@/config";
 import loadGoogleFonts from "../loadGoogleFont";
 
 export default async () => {
-  // Obtenemos el hostname limpio (ej: midominio.com)
+  // Get clean hostname (e.g. mydomain.com)
   const hostname = new URL(SITE.website).hostname;
 
   return satori(
@@ -17,15 +17,15 @@ export default async () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#0f172a", // Fondo oscuro (Slate 900)
+          backgroundColor: "#0f172a", // Dark background (Slate 900)
           backgroundImage:
-            "radial-gradient(circle at 25px 25px, #1e293b 2%, transparent 0%), radial-gradient(circle at 75px 75px, #1e293b 2%, transparent 0%)", // Patrón sutil de puntos (opcional, si no te gusta bórralo)
+            "radial-gradient(circle at 25px 25px, #1e293b 2%, transparent 0%), radial-gradient(circle at 75px 75px, #1e293b 2%, transparent 0%)", // Subtle dot pattern
           backgroundSize: "100px 100px",
           color: "white",
           position: "relative",
         },
         children: [
-          // 1. Gradiente Decorativo Superior Derecho (Púrpura)
+          // 1. Top-right decorative gradient (Purple)
           {
             type: "div",
             props: {
@@ -35,14 +35,14 @@ export default async () => {
                 right: "-50px",
                 width: "600px",
                 height: "600px",
-                background: "linear-gradient(140deg, #a855f7, #ec4899)", // Purple a Pink
+                background: "linear-gradient(140deg, #a855f7, #ec4899)", // Purple to Pink
                 filter: "blur(120px)",
                 opacity: 0.3,
                 borderRadius: "100%",
               },
             },
           },
-          // 2. Gradiente Decorativo Inferior Izquierdo (Indigo)
+          // 2. Bottom-left decorative gradient (Indigo)
           {
             type: "div",
             props: {
@@ -52,7 +52,7 @@ export default async () => {
                 left: "-50px",
                 width: "500px",
                 height: "500px",
-                background: "linear-gradient(140deg, #3b82f6, #6366f1)", // Blue a Indigo
+                background: "linear-gradient(140deg, #3b82f6, #6366f1)", // Blue to Indigo
                 filter: "blur(120px)",
                 opacity: 0.3,
                 borderRadius: "100%",
@@ -60,7 +60,7 @@ export default async () => {
             },
           },
 
-          // 3. Contenedor Central
+          // 3. Central container
           {
             type: "div",
             props: {
@@ -74,7 +74,7 @@ export default async () => {
                 width: "90%",
               },
               children: [
-                // Título del Sitio (HERO)
+                // Site title (HERO)
                 {
                   type: "h1",
                   props: {
