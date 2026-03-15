@@ -3,28 +3,20 @@ layout: ../layouts/AboutLayout.astro
 title: "About"
 ---
 
-Bienvenido a mi rincón digital. Soy un **desarrollador** y **estudiante** apasionado por la tecnología, los videojuegos y construir cosas que vivan en internet.
+I'm a software architect and technical leader focused on designing enterprise-scale systems that balance engineering rigor, regulatory constraints, and real business outcomes. Over the course of my career, my titles have evolved, but my core responsibility has remained consistent: shaping architectures and teams that can scale sustainably.
 
-## ¿Quién soy?
+## What I Do
 
-Me llamo Andrés, y desde que recuerdo siempre tuve curiosidad por entender cómo funcionan las cosas — desde desarmar juguetes de niño hasta desarmar código ajeno a las 2 AM. Actualmente estudio ingeniería mientras desarrollo proyectos que me retan a aprender algo nuevo cada día.
+I approach software development as both a craft and a system — one that improves through experience, iteration, and clear architectural intent. My work spans web and application architecture, customer servicing and engagement platforms, developer and user experience, and large, distributed systems. I'm currently a named inventor on a USPTO-filed, patent-pending architecture, developed in an enterprise environment and now awaiting examination.
 
-Cuando no estoy programando, probablemente estoy en algún mundo virtual explorando mapas, completando misiones o compitiendo online. Los videojuegos no solo son mi hobby, también me enseñaron a resolver problemas, trabajar en equipo y, sobre todo, a no rendirme después del intento #847.
+A defining strength of my career is my ability to operate between engineering and business stakeholders. I spend my time not only designing and implementing systems, but also clarifying intent, constraints, and tradeoffs — ensuring technical decisions are understandable, defensible, and aligned with organizational goals.
 
-## Lo que hago
+## Background
 
-- **Desarrollo web** — Me encanta construir experiencias web modernas con tecnologías como Astro, React, TypeScript y todo lo que el ecosistema JavaScript tiene para ofrecer.
-- **Open Source** — Creo en el poder del código abierto. Puedes encontrar mis proyectos en [GitHub](https://github.com/0xdres/).
-- **Aprendizaje continuo** — Siempre estoy explorando nuevas herramientas, frameworks y conceptos. La tecnología evoluciona rápido y me gusta ir al ritmo.
+My background is deeply rooted in user interface and experience design, but I'm equally comfortable working across the full stack: from front-end experiences through service layers and APIs to underlying data models. In my own projects, I often serve as both the architect and the implementer, which keeps me grounded in the realities of execution.
 
-## Gaming
+## This Blog
 
-Los videojuegos son parte de mi ADN. Desde RPGs épicos hasta shooters competitivos, disfruto prácticamente cualquier género. Es ese espacio donde la creatividad se encuentra con la estrategia y la diversión pura.
+Outside of my primary role, I create content aimed at making complex engineering topics more approachable for practitioners looking to deepen their understanding. This reflects a broader pattern in my work: helping teams move faster and make better decisions by improving shared understanding.
 
-## Este blog
-
-**Devosfera** nació como un espacio para documentar mi viaje como desarrollador, compartir lo que aprendo y conectar con personas que comparten las mismas pasiones. Aquí encontrarás posts sobre desarrollo, tecnología, y alguna que otra reflexión random de madrugada.
-
-Si quieres conectar, no dudes en encontrarme en [GitHub](https://github.com/0xdres/), [X](https://x.com/avdyen) o [LinkedIn](https://www.linkedin.com/in/avdyan/). Siempre es bueno conocer gente cool de la comunidad.
-
-> _"El código es poesía, pero con más puntos y comas."_ — Yo, probablemente
+You can find me on [GitHub](https://github.com/geoffgodwin) and [LinkedIn](https://www.linkedin.com/in/geoffgodwin/).
