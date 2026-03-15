@@ -1,0 +1,158 @@
+---
+title: "Building Tekhton, and Learning My Way Into Agent Pipelines"
+description: "Building Tekhton, a multi-agent dev pipeline, forced me to learn agentic systems from the ground up. Here's what survived contact with real engineering constraints."
+pubDatetime: 2026-03-15T10:00:00Z
+tags:
+  - engineering
+  - architecture
+  - agentic systems
+featured: true
+draft: false
+---
+
+For the last little while, I've been building something called Tekhton, a standalone multi-agent development pipeline that coordinates a Scout, Coder, Reviewer, and Tester around a software task.
+
+That opening description makes it sound a bit more deliberate and well-planned than it really was. I didn't sit down with some grand theory of agentic systems and then methodically implement it from top to bottom; I built Tekhton because I wanted to stop having secondhand opinions about this space and actually learn what held up once real engineering constraints got involved.
+
+I'm a software engineer at a big bank, and as a staff engineer I feel the same pressure I think a lot of people in this industry feel right now, namely that this is a massively hyped topic, there are players everywhere trying to build faster and louder than the last one, and the whole thing can start to resemble a kind of modern dot-com-boom panic where nobody wants to be the person caught standing still. It is very easy to feel like you are getting behind, that the topic is too broad, that you can't keep up, and that somehow everyone else is already halfway up the mountain while you are still trying to work out where the trail even starts.
+
+As a computer scientist, I've also been skeptical, and I still am skeptical, about parts of the broader AI movement. That is natural for me. I tend to take hype with a grain of salt, and I lean toward realism over optimism whenever a new wave of tooling arrives with grand promises attached to it. At the same time, I don't think skepticism is very useful if it never leaves the armchair. With any new tool, I think we owe it to ourselves to push our sleeves up and get into the muck of using it before deciding what we think it can or can't do.
+
+I didn't want to sit at the foothill of mountain stupid and shout opinions uphill. I wanted to start climbing first.
+
+## Table of contents
+
+That also means it is worth saying plainly, right near the top, that this project is incomplete, and I know it is incomplete. Tekhton v1.0 is not me declaring that I've built the definitive answer to agentic software delivery, or that I've somehow arrived at the end of the problem space before everyone else. It is a working system, a serious learning artifact, and a foundation I trust enough to show people, but it also has obvious gaps that I already intend to address in 2.0, and if I'm being honest, probably in 3.0 and 4.0 after that.
+
+In a way, that incompleteness is part of the reason I built it in the first place. I didn't do this because I thought I already had the answer, and I definitely didn't do it as someone coming in with deep prior expertise in agent pipelines. If anything, I built Tekhton as a way to study the problem by touching the stove myself and seeing which ideas survived contact with reality.
+
+## The Question I Actually Wanted To Answer
+
+The question was never, "Can a model write code?" That part is already answered well enough for practical purposes. Yes, a model can write code; sometimes it does a surprisingly good job, sometimes it confidently walks into a wall, and most of the time it does some mixture of both.
+
+The more interesting question, at least to me, was what happens when a task stops being small enough to fit inside one neat prompt and starts looking more like actual software work. Once you get to that point, the real problem is not just generating code. The real problem is deciding what to inspect, carrying context from one step to the next, reviewing the result, checking that it still fits the architecture, writing tests, handling failures, and recovering when something dies halfway through.
+
+At that point the whole thing starts to feel less like prompt engineering and much more like systems engineering, and once I started looking at it that way, a lot of the shape of Tekhton followed naturally.
+
+## Why I Built A Pipeline Instead Of One Big Agent
+
+One of the first things I learned is that a single super-agent prompt turns into soup very quickly. The more responsibility you pile into one prompt, the less clear the behavior becomes, because the agent is now trying to juggle implementation, self-review, test planning, architecture judgment, cleanup, and usually some half-buried instruction to stay concise while also being thorough. It is a bit like asking one person to be the carpenter, the building inspector, the electrician, and the city planner all at once, then acting surprised when the house comes out crooked.
+
+So Tekhton became a pipeline instead. There is a Scout that looks at the task and helps estimate scope, a Coder that does the implementation work, a Reviewer that looks for blockers, architectural issues, and design drift, and a Tester that focuses on coverage gaps and validation. Each stage writes a file that the next stage can inspect, which ended up being more important than I expected because it made the whole system legible.
+
+If something goes wrong, I can inspect the scout report, the coder summary, the reviewer report, and the tester report. I don't have to guess where the model's internal train of thought derailed, because I can look at the handoff points and see which part of the system did something useful and which part did something dumb. That felt much closer to real engineering than the idea of one giant prompt that was supposed to somehow do everything at once.
+
+## The First Big Decision Was To Keep Control In The Shell
+
+One part of this story that probably matters here is that Tekhton did not begin as the main thing I was trying to build. I was originally experimenting with how well I could get agents to build a simple web card game, and the pipeline that eventually became Tekhton grew out of that work. Over time I found myself getting more interested in improving the pipeline than in continuing to build the game itself, which is probably a sign that the more interesting problem had quietly changed underneath me. I'm sure I'll go back to the game eventually, but at least for now Tekhton is the thing that has held my attention.
+
+Once that happened, one of the first major decisions was to extract the pipeline into a standalone tool, which gave Tekhton a two-directory model. The Tekhton repo contains the orchestration logic, prompts, stages, and supporting libraries; the target project only gets configuration and agent role files.
+
+That was one of the most important decisions I made, because I didn't want control flow living partly in scripts and partly in vibes. I wanted something with a clear control plane that I could inspect, test, version, and reason about when things broke.
+
+So the shell owns the orchestration. It decides what stage runs next, what context gets assembled, what counts as failure, what gets retried, and what state gets saved. The models are still central to the system, obviously, but they are operating inside bounded roles within a larger piece of machinery.
+
+If I had to describe the philosophy in one metaphor, it would be this: I didn't want to hand the model the steering wheel and hope it stayed on the road; I wanted to build a car with decent brakes, clear gauges, and lane markers before worrying about how fast it could go. That is probably the most recognizable expression of my instincts anywhere in the project.
+
+## What Actually Shaped The Project, Failure
+
+The most valuable part of building Tekhton was not the happy path, it was everything ugly that gathered around it. Agents hung, runs died early, a stage could null-run and the pipeline would keep stumbling forward as if work had happened, piped stdin could leak into places it had no business being, and SIGKILL or out-of-memory behavior forced me to think much more carefully about what a partial failure should actually mean. Even small shell patterns that look harmless under normal execution can become traps once `set -euo pipefail` is involved.
+
+That part of the project was honestly grounding, because there is a version of this space that gets discussed almost like model capability is the whole game, as if the only thing standing between us and reliable agentic systems is a smarter model or a cleaner prompt. My experience was almost the opposite. The smarter the model got, the more obvious it became that orchestration, failure handling, and validation were where the real work lived.
+
+A lot of the repo's early iterations were really just me getting punched in the face by real edge cases, then tightening the system so it would fail more cleanly the next time around.
+
+That included:
+
+- Exit detection and null-run handling
+- Safer timeout behavior
+- Cleaner resume support
+- Stdin isolation so piped input didn't bleed into later steps
+- Making sure a broken run didn't keep marching into unrelated downstream work
+
+None of that is terribly glamorous, but all of it matters in the end.
+
+## Why Drift Became A First-Class Problem
+
+One thing I started noticing pretty quickly is that a run can look successful while the codebase gets a little worse, and that is a particularly dangerous kind of success. If the system completes the task, passes the tests, and still leaves behind naming inconsistencies, architectural boundary erosion, dead code, or duplicated patterns, then it hasn't really solved the problem so much as moved the mess around.
+
+I've spent years working as a software architect, and my experience maintaining large codebases is where Tekhton's drift controls came from. I added architecture-aware prompts, a drift log, architecture change proposals, non-blocking notes, and eventually an architect audit stage. The point was not to make the system bureaucratic; the point was to make it remember. If the same category of architectural sloppiness keeps showing up across runs, I don't want the pipeline to shrug and behave as though it has never seen it before.
+
+This matters in industry because software quality usually does not collapse all at once, it drifts. A naming convention gets a little softer, a boundary gets crossed one extra time, a shortcut becomes a pattern, and then six months later everyone is working in a codebase that feels heavier and less coherent while nobody can point to the exact day it happened. Tekhton is my attempt to make that drift visible while it is still small enough to do something about.
+
+## Why I Leaned So Hard On Deterministic Validation
+
+I like reviewer agents, and I think they are genuinely useful, but I don't think model judgment should be the floor that everything rests on.
+
+Whenever I could enforce something mechanically, I wanted to enforce it mechanically. That is why Tekhton has build gates, analysis commands, test commands, and optional dependency constraint validation. If a boundary can be checked in code, I'd much rather check it in code than ask a language model to remember a rule forever.
+
+To me, that is the difference between a helpful assistant and a reliable system. An assistant can remind you; a reliable system can stop you. That distinction matters a lot more than people think, especially if you work in environments where correctness and maintainability have actual consequences attached to them.
+
+I do think peers in the industry are going to run into this, if they haven't already. The useful question isn't whether AI can help write software, because it clearly can. The useful question is what kind of engineering scaffolding has to exist around it before that help becomes trustworthy enough to matter.
+
+## The System Got Better Once It Started Adapting To Task Size
+
+Another lesson that came out pretty quickly is that fixed budgets are blunt instruments. Some tasks are tiny, some are sprawling, and treating them the same is like packing for every trip with the same size suitcase; you either drag around too much for the small ones, or you run out of room when it actually matters.
+
+That is what pushed me toward dynamic turn limits. In Tekhton, the Scout helps estimate complexity up front, then the shell adjusts downstream turn budgets within configured caps. I liked this because it gave me a form of adaptivity without giving up control. The system can respond to the shape of the work, but it still does so inside explicit boundaries.
+
+That theme ended up showing up a lot in the project. Whenever I had a choice between making something adaptive and making it understandable, I tried to find the version that preserved both.
+
+## The Planning Phase Was The Biggest Shift In Scope
+
+The biggest conceptual jump in Tekhton came later, when I started building the planning phase.
+
+Up to that point, the project was mostly about execution. You give the pipeline a task, let it coordinate the stages, inspect the output, and repeat. The planning work changed that because it moved Tekhton one layer up the stack.
+
+Instead of assuming a project already had a good design document and a useful CLAUDE.md, I wanted the system to help create those too. That meant building a planning flow that could interview for a project's shape, generate a substantial DESIGN.md, and then generate a CLAUDE.md with real implementation milestones, rules, decisions, and constraints.
+
+This has probably been the most satisfying part of the project so far, because the system started to become self-applicable. Tekhton was no longer just helping me implement tasks; it was helping me define the structure of future tasks. At the same time, it reinforced the same lesson as the rest of the project, namely that quality comes from depth, structure, and iteration, not from pretending one prompt can carry the whole load by itself.
+
+## What I Think Tekhton v1.0 Actually Does Well
+
+At this point, I feel good enough about Tekhton v1.0 to put it in public, not because I think it is complete, and definitely not because I think it is the final word on anything, but because it is real and may help other people grasp some of the same concepts it helped me come to terms with.
+
+It has a clear control plane, meaningful role separation, build gates and validation, drift tracking, state persistence and resume support, and a planning mode. It also has enough tests that I can make changes to a Bash-heavy orchestration system without feeling like I'm performing surgery with the lights off.
+
+Most importantly, it reflects a set of engineering choices I can explain, and I think that matters. There is a lot of software in this space that can demo well but is hard to interrogate. Tekhton is not polished in the way a product is polished, but it is inspectable in the way an engineering artifact should be inspectable.
+
+## Where It Still Falls Short
+
+Tekhton v1.0 also showed me exactly where the next layer of work needs to go. It can execute a milestone, but it still doesn't progress cleanly from milestone to milestone on its own. It can collect non-blocking notes, but it doesn't do enough to clean them up autonomously. It can detect some forms of architectural drift, but it still lacks a better protocol for clarifying ambiguous requirements in the middle of a run. As a result, it can plan greenfield work better than it can replan brownfield work. It adapts budgets effectively, but it doesn't yet learn from its own history the way I want it to.
+
+I don't really see that as a complaint so much as the useful kind of incompleteness. One of the best things a v1.0 can do is make the next problems obvious, and constantly iterating toward perfection without a release is a fool's errand that never ends.
+
+## What I Learned Building It
+
+The personal value of this project for me has been bigger than the implementation itself.
+
+I started this without prior deep knowledge of agent pipelines, and that forced me to bring my existing engineering instincts into a space that often gets discussed in much looser terms. I kept coming back to very ordinary questions:
+
+- What owns control flow?
+- What happens when a run fails halfway through?
+- What should be remembered across runs?
+- What can be validated mechanically?
+- Where does ambiguity go?
+- How do I stop a useful but inconsistent model from being treated like an authority?
+
+Those questions gave me a way to learn without getting lost in the hype cycle, and I think that is one of the reasons I wanted to publish this now. I'm not publishing Tekhton as a victory lap; I'm publishing it as a serious artifact from a period of hands-on learning. I wanted to build something concrete enough that my opinions on this space would have to answer to the code.
+
+## Why I’m Putting It In Public
+
+I want other developers, and especially people who are trying to evaluate this space seriously, to be able to inspect the tradeoffs.
+
+If you are an engineer, maybe some of the orchestration ideas are useful. If you are leading engineers, maybe it helps clarify where agent workflows might fit into real delivery systems, and where they still need stronger controls around them.
+
+Mostly though, I think better conversations happen when there is an actual artifact on the table. It is easy to say AI coding tools are the future, and it is easy to say they are overhyped. It is much harder, and much more useful, to build a thing, watch it break, fix it, and then explain what the breakage taught you. That is what Tekhton has been for me.
+
+## Where I Want Tekhton 2.0 To Go
+
+I already know what Tekhton v1.0 doesn't do well enough, and the next version needs to be more adaptive without becoming less disciplined.
+
+That means a few concrete things. It needs context accounting, so the pipeline understands how much information it is actually pushing into each agent call. It needs milestone progression that can tell when a piece of work is truly done, and when the next milestone should begin. It needs a better clarification protocol for the moments when the right move is to pause and ask a human a direct question. It needs better replanning support for projects that have already evolved beyond their original design docs. It needs some capacity to clean up its own non-blocking debt, and eventually it should learn from run history instead of treating every task like it is the first one it has ever seen.
+
+I've already planned out that 2.0 work, and I'm excited to start building it, but I wanted to publish v1.0 before doing that because I think foundations matter. Before a system gets smarter, it should become legible.
+
+Tekhton v1.0 was my attempt to make an agent-driven workflow legible, legible to me, legible to other engineers, and legible enough that the next round of improvements can be made on purpose instead of by accident.
+
+If you end up taking a look at it, I'd be especially interested in hearing from people who have built their own agent workflows, or tried to introduce model-assisted development into real team environments. I think the next interesting questions in this space sit right at the boundary between orchestration and adaptivity, and I'm still very much learning there.
