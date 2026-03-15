@@ -1,7 +1,8 @@
 export const SITE = {
   website: "https://geoffgodwin.com/",
   author: "Geoff Godwin",
-  handle: "staff.engineer",
+  handle: "geoff.godwin",
+  tagline: "Perpetual Practitioner",
   profile: "https://github.com/geoffgodwin",
   desc: "Staff Engineer writing about agentic AI architecture, enterprise systems, and building things that actually work in production.",
   title: "Geoff Godwin",
