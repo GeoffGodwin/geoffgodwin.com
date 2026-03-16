@@ -123,7 +123,7 @@ const hasCoverInFolder = coverImage
               <button
                 class="gallery-item group"
                 data-index={idx}
-                aria-label={`Ver imagen: ${img.alt}`}
+                aria-label={`View image: ${img.alt}`}
                 type="button"
               >
                 <Image
@@ -155,13 +155,13 @@ const hasCoverInFolder = coverImage
 <dialog
   id="lightbox"
   class="lightbox"
-  aria-label="Visor de imagen"
+  aria-label="Image viewer"
   aria-modal="true"
 >
   <button
     class="lightbox-close"
     id="lightbox-close"
-    aria-label="Cerrar"
+    aria-label="Close"
     type="button"
   >
     <svg
@@ -182,7 +182,7 @@ const hasCoverInFolder = coverImage
   <button
     class="lightbox-nav lightbox-prev"
     id="lightbox-prev"
-    aria-label="Anterior"
+    aria-label="Previous"
     type="button"
   >
     <svg
@@ -207,7 +207,7 @@ const hasCoverInFolder = coverImage
   <button
     class="lightbox-nav lightbox-next"
     id="lightbox-next"
-    aria-label="Siguiente"
+    aria-label="Next"
     type="button"
   >
     <svg
@@ -235,7 +235,7 @@ const hasCoverInFolder = coverImage
     ) as HTMLDialogElement | null;
     if (!grid || !lightbox) return;
 
-    // A partir de aquí TypeScript no lleva el narrowing a closures; usamos la variable local
+    // From here TypeScript does not narrow closures; use the local variable
     const lb = lightbox;
 
     const items = Array.from(

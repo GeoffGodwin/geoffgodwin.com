@@ -91,7 +91,7 @@ export default async () => {
                   },
                 },
 
-                // Línea separadora pequeña
+                // Small separator line
                 {
                   type: "div",
                   props: {
@@ -105,7 +105,7 @@ export default async () => {
                   },
                 },
 
-                // Descripción del sitio
+                // Site description
                 {
                   type: "p",
                   props: {

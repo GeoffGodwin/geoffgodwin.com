@@ -88,7 +88,7 @@ h3 {
     - Added animated "Ping" badge (`~/devosfera`).
     - Implemented a "Shimmer" gradient animation for the main title.
 - **Layout:**
-    - Introduced "Decorative Section Separators" (e.g., `// posts`, `// recientes`).
+    - Introduced "Decorative Section Separators" (e.g., `// posts`, `// recent`).
     - Changed Featured Posts layout to a Grid system.
     - Added visual counters to section headers (e.g., `[4/10]`).
 
@@ -169,7 +169,7 @@ The visual design of the Open Graph (OG) images for both the site and individual
 
 Complete visual overhaul of the homepage with a programming/tech blog identity:
 
-- **Hero section:** Terminal-style prompt badge (`~/ready-to-go $` with animated ping dot), shimmer gradient title animation, social links, and code-comment style separators (`// posts`, `// recientes`).
+- **Hero section:** Terminal-style prompt badge (`~/ready-to-go $` with animated ping dot), shimmer gradient title animation, social links, and code-comment style separators (`// posts`, `// recent`).
 - **Featured section:** Star icon header, 2-column grid layout.
 - **Recent posts section:** Array counter indicator (`[n/total]`).
 - **CTA button:** Rounded border with hover glow effects.
@@ -239,7 +239,7 @@ Changed progress bar container z-index from `z-10` to `z-50` so it renders above
 
 Redesigned back button with integrated breadcrumb navigation:
 
-- **Back button pill:** Glassmorphism pill with border, `backdrop-filter: blur(8px)`, chevron icon with hover translation animation, label "Volver".
+- **Back button pill:** Glassmorphism pill with border, `backdrop-filter: blur(8px)`, chevron icon with hover translation animation, label "Back".
 - **Inline breadcrumbs:** Home icon (SVG house) → chevron separators → path segments, last segment in accent color as current page (truncated at 22ch).
 - **Responsive:** Breadcrumbs hidden on mobile (`sm:` breakpoint), only back button visible.
 
@@ -261,7 +261,7 @@ Modern centered post header:
 - **Title:** Centered with gradient text (`accent → foreground` via oklab), larger sizes (`3xl → 4xl → 2.75rem`).
 - **Tag badges:** Below title, centered pill badges with `#tag`, accent border, glassmorphism backdrop-blur, interactive hover.
 - **Metadata chips:** Author (person icon) and date (calendar icon) inside glassmorphism pills with subtle borders. EditPost also styled as a chip.
-- **Code-comment separators:** `// contenido` and `// fin` decorative dividers with gradient lines.
+- **Code-comment separators:** `// content` and `// end` decorative dividers with gradient lines.
 
 ## 15. Post Footer Section Redesign
 
@@ -270,7 +270,7 @@ Modern centered post header:
 Tags and share links in a responsive row layout:
 
 - **Tags:** Left-aligned on desktop, centered on mobile. Pills with `#` prefix, accent hover.
-- **Share links:** Right-aligned on desktop. Square `8×8` buttons with glassmorphism, accent hover glow, under "Compartir" label in mono font.
+- **Share links:** Right-aligned on desktop. Square `8×8` buttons with glassmorphism, accent hover glow, under "Share" label in mono font.
 
 **File:** `src/components/ShareLinks.astro`
 
@@ -285,8 +285,8 @@ New vertical card design for post navigation:
 - **2-column grid** always visible (not responsive toggle).
 - Cards with `rounded-2xl`, glassmorphism, inline SVG arrow icons with hover translation.
 - **Aurora glow effect:** 3-layer `radial-gradient` aurora behind each card (`blur(16px)`), always visible at 50% opacity, intensifies to 100% + `blur(20px)` on hover.
-- Titles with `line-clamp-2`. Labels "Anterior"/"Siguiente" in mono uppercase.
-- Empty `<div />` placeholder when no previous post to keep "Siguiente" right-aligned.
+- Titles with `line-clamp-2`. Labels "Previous"/"Next" in mono uppercase.
+- Empty `<div />` placeholder when no previous post to keep "Next" right-aligned.
 
 ## 17. Back To Top Button Enhancement
 
@@ -303,10 +303,10 @@ New vertical card design for post navigation:
 
 Modern footer with consistent design language:
 
-- **Brand column:** Logo with `<>` icon (same as navbar), gradient text, tagline "Un espacio donde la curiosidad se convierte en código".
-- **Social links:** Square glassmorphism buttons under "Conectar" label in mono font, matching ShareLinks style.
+- **Brand column:** Logo with `<>` icon (same as navbar), gradient text, tagline "Architecture. Systems. Production.".
+- **Social links:** Square glassmorphism buttons under "Connect" label in mono font, matching ShareLinks style.
 - **Gradient separators:** Top border and internal divider with transparent→border→transparent gradient.
-- **Copyright bar:** Mono font, "Hecho con ♥ y mucho café" message.
+- **Copyright bar:** Mono font, "Made with ♥ and lots of coffee" message.
 - **Glassmorphism:** Semi-transparent background with `backdrop-filter: blur(8px)`.
 
 ## 13. Tags Page — Full Redesign with Interactive Aurora Effects
@@ -343,12 +343,11 @@ Complete hero redesign with interactive effects:
 
 ### Content (`about.md`)
 
-Rewritten from default AstroPaper template to personalized content as Andrés:
+Rewritten from default AstroPaper template to personalized content as Geoff:
 
-- Introduction as developer, student, and gamer.
-- Sections: ¿Quién soy?, Lo que hago (web dev, open source, continuous learning), Gaming, Este blog (Devosfera purpose).
-- Links to real social profiles (GitHub, X, LinkedIn).
-- Closing quote in blockquote style.
+- Introduction as software architect and technical leader.
+- Sections: What I Do, Background, This Blog.
+- Links to real social profiles (GitHub, LinkedIn).
 
 ## 19. Archives Page — Full Redesign with Timeline & Interactive Aurora
 
@@ -356,7 +355,7 @@ Rewritten from default AstroPaper template to personalized content as Andrés:
 
 Complete visual overhaul replacing the simple list layout with a timeline-based design:
 
-- **Hero section:** Same aurora system as Tags/About — 3 floating `radial-gradient` orbs with drift animations + mouse-following aurora orb (350px, `blur(50px)`, tracks via `--mx`/`--my`). Gradient glow title, Spanish description, stat badges.
+- **Hero section:** Same aurora system as Tags/About — 3 floating `radial-gradient` orbs with drift animations + mouse-following aurora orb (350px, `blur(50px)`, tracks via `--mx`/`--my`). Gradient glow title, English description, stat badges.
 - **Timeline layout:** Vertical timeline with a gradient accent line (`linear-gradient` from accent→border→fade). Posts are visually connected via:
   - **Timeline dots** (`.post-dot`): 10px circles on the timeline line, hollow by default, fill with accent + glow `box-shadow` on hover.
   - **Year markers:** Pill-shaped badges with gradient text, positioned at the timeline origin. Mouse-reactive aurora glow inside.
@@ -367,7 +366,7 @@ Complete visual overhaul replacing the simple list layout with a timeline-based 
   - **Day number:** Large bold accent number (with opacity + `text-shadow` glow transition on hover).
   - **Title + description:** Title glows with accent `text-shadow` on hover, description clamped to 2 lines.
   - Hover elevation (`translateY(-2px)`) with multi-layer box-shadow + inset highlight.
-- Months translated to Spanish (Enero, Febrero, etc.).
+- Months translated to English (January, February, etc.).
 
 ## 20. Search Page — Full Redesign with Interactive Aurora
 
@@ -375,7 +374,7 @@ Complete visual overhaul replacing the simple list layout with a timeline-based 
 
 Complete visual overhaul of the search page, replacing the basic `Main` layout with a custom aurora-enhanced design:
 
-- **Hero section:** 3 floating aurora orbs with drift animations + mouse-following aurora orb (350px, `blur(50px)`). Gradient glow title "Buscar", Spanish description.
+- **Hero section:** 3 floating aurora orbs with drift animations + mouse-following aurora orb (350px, `blur(50px)`). Gradient glow title "Search", English description.
 - **Search container card:** Rounded card (`.search-container`) wrapping the Pagefind UI with:
   - **Mouse-reactive aurora** (`.search-aurora`): 300px radial glow following cursor, `blur(40px)`.
   - **Mouse-reactive border glow** (`.search-border-glow`): 150px concentrated glow, `mix-blend-mode: screen`.
@@ -399,7 +398,7 @@ Complete visual overhaul of the search page, replacing the basic `Main` layout w
 
 A full-featured search modal accessible from any page via keyboard shortcut or navbar icon:
 
-- **Trigger:** `⌘K` / `Ctrl+K` keyboard shortcut, or clicking the search icon (lupa) in the navbar.
+- **Trigger:** `⌘K` / `Ctrl+K` keyboard shortcut, or clicking the search icon (magnifying glass) in the navbar.
 - **Pagefind integration:** Lazy-loads `@pagefind/default-ui` on first open. Supports `showSubResults`.
 - **Aurora background:** 3 animated `radial-gradient` orbs (`blur(70px)`) with independent drift animations floating behind the modal content.
 - **Cursor-following glow:** 350px radial glow (`blur(40px)`) that tracks the mouse position inside the modal via `--gx`/`--gy` CSS vars.
@@ -408,7 +407,7 @@ A full-featured search modal accessible from any page via keyboard shortcut or n
 - **Glassmorphism:** Backdrop with `blur(20px) saturate(180%)`, header/footer with `backdrop-filter: blur(12px)` and semi-transparent backgrounds.
 - **Spring animation:** Modal entrance uses `cubic-bezier(0.34, 1.56, 0.64, 1)` for a subtle bounce effect.
 - **Empty state:** Floating search icon with `empty-float` animation + placeholder text when no query entered.
-- **Footer bar:** Navigation hints (↵ abrir, ↑↓ navegar) and "powered by pagefind" credit.
+- **Footer bar:** Navigation hints (↵ open, ↑↓ navigate) and "powered by pagefind" credit.
 - **Custom scrollbar:** Accent-colored thin scrollbar in the results area.
 - **Result hover effects:** Each result gets accent background tint + `box-shadow` glow on hover. Mark highlights have subtle `box-shadow`.
 - **Close:** `Escape` key, backdrop click, or close button. Restores `body` scroll on close.
@@ -420,7 +419,7 @@ A full-featured search modal accessible from any page via keyboard shortcut or n
 ### Navbar Changes (`Header.astro`)
 
 - **New "Search" nav link:** Added as a regular navigation entry (`<a href="/search">`) alongside Posts, Tags, About, linking to the dedicated search page.
-- **Search icon (lupa) repurposed:** Changed from `<LinkButton href="/search">` to `<button data-search-trigger>`, now opens the search modal instead of navigating. Title updated to "Buscar (⌘K)".
+- **Search icon (magnifying glass) repurposed:** Changed from `<LinkButton href="/search">` to `<button data-search-trigger>`, now opens the search modal instead of navigating. Title updated to "Search (⌘K)".
 
 ## 22. Table of Contents (TOC) — Full Redesign
 
@@ -504,7 +503,7 @@ Added **Cascadia Code** as a local font:
 
 ## 27. Image Galleries Feature
 
-> Referencia: [astro-paper issue #553](https://github.com/satnaing/astro-paper/issues/553). Implementado el 17/02/2026. Documentación completa en [`GALLERIES.md`](GALLERIES.md).
+> Reference: [astro-paper issue #553](https://github.com/satnaing/astro-paper/issues/553). Implemented 17/02/2026. Full documentation in [`GALLERIES.md`](GALLERIES.md).
 
 **Files:**
 - `src/config.ts`

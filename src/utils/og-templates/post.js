@@ -108,7 +108,7 @@ export default async post => {
                 // zIndex eliminado
               },
               children: [
-                // Línea separadora decorativa
+                // Decorative separator line
                 {
                   type: "div",
                   props: {
