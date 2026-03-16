@@ -25,7 +25,14 @@ const { frontmatter } = Astro.props;
         <div class="avatar-ring">
           <div class="avatar-glow"></div>
           <div class="avatar-inner">
-            <span class="avatar-emoji">👨‍💻</span>
+            <img
+              src={`https://github.com/${SITE.profile.split("/").pop()}.png?size=110`}
+              alt={SITE.author}
+              width="110"
+              height="110"
+              class="avatar-img"
+              loading="eager"
+            />
           </div>
         </div>
         <h1 class="hero-title">
@@ -294,9 +301,13 @@ const { frontmatter } = Astro.props;
     animation: ring-spin 6s linear infinite reverse;
   }
 
-  .avatar-emoji {
-    font-size: 2.8rem;
-    line-height: 1;
+  .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    animation: ring-spin 6s linear infinite reverse;
   }
 
   .hero-title {
