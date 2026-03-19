@@ -1,0 +1,371 @@
+---
+title: "MCP Walked So We Could Run"
+description: "A proposal for native AI capability discovery and intent as a first-class HTTP primitive, replacing MCP's runtime protocol with a static JSON manifest at /.well-known/ai-capabilities for HTTP-callable APIs."
+pubDatetime: 2026-03-18T10:00:00Z
+tags:
+  - engineering
+  - architecture
+  - agentic systems
+featured: false
+draft: true
+---
+
+**A proposal for native AI capability discovery and intent as a first-class HTTP primitive**
+
+---
+
+> **TL;DR:** MCP proved that AI agents need standardized capability discovery. But for HTTP-callable APIs, which represent a huge slice of the integration landscape, the full weight of a runtime protocol isn't necessary. This post proposes a static JSON manifest served at `/.well-known/ai-capabilities` that handles discovery, semantic intent, error contracts, auth scoping, and policy declaration without requiring an MCP server. Invocation normalization stays where it belongs: in a shared client library. The manifest is a build artifact, not a running process, and it describes exactly what HTTP APIs need to express without carrying protocol surface area designed for use cases they don't have.
+
+---
+
+## The Problem Nobody Is Saying Out Loud
+
+Model Context Protocol is a genuinely good idea that I believe is trying to solve too many problems at once, like Bilbo's famous bit of butter scraped over too much bread. The result is a protocol that does a lot of things adequately when what the ecosystem actually needs is something that does the essential things simply.
+
+The core insight behind MCP is correct and important: LLMs operating as autonomous agents need a standardized, runtime-callable interface to external tools and data sources. Without that standardization, every AI application becomes a bespoke integration project full of custom wrappers, one-off adapters, and brittle glue code that breaks every time an upstream API sneezes. MCP addressed that problem, and the industry is genuinely better for it.
+
+The trouble is that MCP addressed it by adding a new layer of infrastructure that every producer and consumer must now deploy, maintain, version, and operate: a separate server process, a separate protocol, a separate ecosystem of tooling, and a separate point of failure for every integration point. That weight makes sense for some use cases, particularly local tooling, IDE integrations, and scenarios requiring persistent bidirectional state. For the broad landscape of HTTP-callable APIs that make up a significant portion of the web's integration surface area, however, it's more machinery than the problem demands.
+
+The cracks from that weight are showing in production and we're only one quarter into 2026. Perplexity's CTO Denis Yarats [announced at Ask 2026](https://awesomeagents.ai/news/perplexity-agent-api-mcp-shift/) that they're moving away from MCP internally, citing context window bloat and authentication friction. Eric Holmes' ["MCP is dead. Long live the CLI"](https://ejholmes.github.io/2026/02/28/mcp-is-dead-long-live-the-cli.html) hit the top of Hacker News with hundreds of comments. Y Combinator's CEO Garry Tan built a CLI instead of working through MCP. The MCP community's own 2026 roadmap acknowledges that stateful sessions fight with load balancers, horizontal scaling requires workarounds, and there's no standard way for a registry or crawler to discover what a server does without first connecting to it.
+
+I don't think these are fringe complaints from people who didn't read the docs. These read as structural feedback from production deployments, and they're telling us something important: MCP validated a real need, yet the weight of the solution is now becoming the problem itself.
+
+> "I know this music. Let's change the beat." — Jean-Baptiste Emanuel Zorg, *The Fifth Element*
+
+## REST Didn't Win Because It Was More Powerful
+
+In the early 2000s, web services faced a similar challenge: how do you describe and invoke remote capabilities in a standardized way? The industry's answer was SOAP and WSDL, which were technically correct, if practically burdensome. Every service needed a WSDL file, every consumer needed a SOAP client, and the whole ecosystem began to groan under the weight of its own ceremony.
+
+REST didn't win because it was more powerful than SOAP. It won because it was *less*. It folded capability description into the design of the API itself rather than bolting a separate description layer on top, and in doing so it lowered the barrier to entry so dramatically that adoption became self-sustaining.
+
+I want to be honest about where this analogy breaks down for what I'm proposing. REST truly eliminated the description layer by using HTTP's native semantics (verbs, status codes, content negotiation) as the interface itself. This proposal doesn't eliminate the description layer; it replaces MCP's runtime protocol with a lighter, static description format. That's a meaningful reduction in infrastructure, not a paradigm shift on the order of REST replacing SOAP. The more precise comparison might be two competing description approaches with different complexity profiles and different assumptions about where orchestration logic should live. I think the lighter approach wins for the HTTP-callable case, but I don't want to oversell the analogy.
+
+MCP rhymes with WSDL, though the analogy isn't perfect and I think being precise about where it breaks matters. WSDL described services that were already HTTP-callable, so the ceremony was purely descriptive overhead. MCP doesn't just *describe* capabilities; it *normalizes invocation*. Ten APIs with ten different auth flows, error formats, pagination schemes, and response envelopes become one consistent calling convention through MCP, and that's a real contribution worth acknowledging.
+
+The question is whether that normalization requires an entirely new protocol, or whether it represents a natural extension to infrastructure that already exists everywhere HTTP does.
+
+> **The question isn't whether MCP's contributions are real. It's whether they require a new protocol, or a better use of the one we already have.**
+
+## What MCP Actually Adds Over REST & OpenAPI
+
+To propose something better we need to be honest about the specific gaps we're trying to fill, because MCP contributes three things that REST and OpenAPI don't natively provide:
+
+**Runtime callability with a standardized invocation contract.** OpenAPI describes interfaces for humans and code generators at build time, while MCP makes those same interfaces callable by a running LLM at runtime with a consistent invocation and response contract regardless of the underlying API's quirks. It's worth separating this into two distinct contributions: *discovery and intent* (knowing what to call, when, and why) and *invocation normalization* (getting a consistent request/response envelope regardless of the underlying API). These are both real, but they're different problems with different natural solutions.
+
+**Semantic context beyond parameter types.** OpenAPI tells you what parameters an endpoint accepts, whereas MCP can tell an LLM *when* to call a tool, *why* it exists, and what a good response looks like in context. This is the difference between a function signature and a fully fleshed out docstring: both describe the interface, yet only one gives an intelligent consumer enough context to use it well autonomously.
+
+**Bidirectional context primitives.** MCP supports not just tools (things an LLM can invoke) but also resources (data an LLM can read into context) and prompts (reusable templates). REST has no equivalent primitive for pushing context to a consumer rather than responding to a request.
+
+These are genuine gaps when you're building production systems at scale. Here's my wild claim: the *discovery and intent* gaps don't require a new protocol to fill them. They represent natural extensions to infrastructure that already exists everywhere HTTP does. Invocation normalization is a real and harder problem that I'll address separately, because conflating it with discovery is how we ended up with a protocol that's heavier than it needs to be.
+
+## The Proposal: AI Capability Discovery as a First-Class HTTP Primitive
+
+The `.well-known/` URI path is an IETF standard (RFC 8615) designed precisely for this kind of problem, providing a standardized location where a server can expose metadata about itself that clients can discover without prior knowledge. We already use it for OAuth server metadata, security policy, WebFinger (this was a fun aside; check out [Wikipedia](https://en.wikipedia.org/wiki/WebFinger) if you're curious about this somewhat obscure reference), and dozens of other discovery mechanisms.
+
+It's worth noting that the MCP community itself is moving in this direction. SEP-1649 and SEP-1960 propose `.well-known/mcp` endpoints for server metadata discovery, and the 2026 roadmap explicitly calls for "a standard metadata format, that can be served via `.well-known`, so that server capabilities are discoverable without a live connection." The instinct feels right to me, yet the proposals still assume the consumer connects to an MCP server *after* discovery. Their manifest describes where to find the MCP endpoint, not the capabilities themselves, and I'm hoping it's my fresh eyes noticing this rather than me standing at the foot of Mt. Stupid again.
+
+My proposal goes further: **the manifest *is* the capability interface**, and no MCP server is required.
+
+The idea is to standardize `GET /.well-known/ai-capabilities` as the universal endpoint through which any HTTP service describes itself to an autonomous AI consumer. A compliant response would be a JSON manifest that covers the discovery and intent gaps identified above:
+
+```json
+{
+  "schema_version": "0.1.0",
+  "service": {
+    "name": "Payments API",
+    "description": "Processes and analyzes financial transactions",
+    "base_url": "https://api.example.com/v2"
+  },
+  "consumer_requirements": {
+    "content_types": ["application/json"],
+    "streaming_responses": false
+  },
+  "tools": [
+    {
+      "id": "analyze_transactions",
+      "path": "/transactions/analyze",
+      "method": "POST",
+      "description": "Detects anomalies and patterns in transaction history",
+      "intent": {
+        "when": "User asks about spending patterns, unusual activity, or transaction history analysis",
+        "prerequisites": "Account ID must be resolved first. Use account_summary resource.",
+        "avoid_when": "User is asking about future projections; this tool is historical only"
+      },
+      "parameters": {
+        "account_id": {
+          "type": "string",
+          "required": true,
+          "description": "The account identifier to analyze"
+        },
+        "date_range": {
+          "type": "object",
+          "required": false,
+          "description": "ISO 8601 date range. Defaults to last 30 days if omitted",
+          "json_schema": {
+            "type": "object",
+            "properties": {
+              "start": { "type": "string", "format": "date" },
+              "end": { "type": "string", "format": "date" }
+            },
+            "required": ["start"]
+          }
+        }
+      },
+      "returns": {
+        "type": "array",
+        "description": "Flagged transactions with anomaly type and confidence score",
+        "item_schema": {
+          "transaction_id": "string",
+          "anomaly_type": "string",
+          "confidence": "number",
+          "details": "string"
+        },
+        "typical_size": "medium",
+        "max_items": 1000
+      },
+      "errors": {
+        "rate_limited": {
+          "status": 429,
+          "retry_strategy": "exponential_backoff",
+          "context": "Safe to retry. Do not surface to user unless persistent."
+        },
+        "insufficient_scope": {
+          "status": 403,
+          "context": "Current credentials lack this permission. Inform user and suggest escalation."
+        }
+      },
+      "example_trigger": "Show me unusual transactions on account 12345 this month"
+    }
+  ],
+  "resources": [
+    {
+      "id": "account_summary",
+      "path": "/accounts/{account_id}/summary",
+      "method": "GET",
+      "description": "Current balance, status, and account metadata",
+      "intent": {
+        "when": "Read into context before any account-specific tool call"
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "provider_discovery": "https://api.example.com/.well-known/openid-configuration",
+    "supported_methods": ["oauth2", "api_key"],
+    "scopes": {
+      "read": ["analyze_transactions", "account_summary"],
+      "admin": ["close_account", "modify_limits"]
+    },
+    "agent_identification": {
+      "requires_agent_id": true,
+      "id_header": "X-Agent-ID",
+      "description": "Unique identifier for the calling agent. Used for audit trails and rate limiting."
+    }
+  },
+  "policy": {
+    "human_approval_required": ["close_account", "modify_limits"],
+    "redact_from_logs": ["account_id", "ssn"],
+    "max_actions_per_session": 50,
+    "policy_url": "https://api.example.com/ai-policy"
+  },
+  "versioning": {
+    "current": "0.1.0",
+    "min_supported": "0.1.0",
+    "changelog_url": "https://api.example.com/ai-capabilities/changelog"
+  }
+}
+```
+
+This manifest is the discovery and intent layer an LLM needs to understand and correctly invoke the API's capabilities, without a separate MCP server, without a code generator run at build time, and without a human writing bespoke integration code. It tells the orchestrator *what* to call, *when*, *why*, and *what to expect back*. The orchestrator's client library handles the *how* of actually normalizing each API's native responses into a consistent format.
+
+One important detail: the manifest endpoint itself can require authentication. If a service exposes internal tools or admin capabilities that shouldn't be publicly discoverable, it can gate the `/.well-known/ai-capabilities` endpoint behind the same auth it uses for everything else, returning different manifest content based on the caller's credentials. This is just standard HTTP auth on an endpoint, not a special mechanism. A public API might serve its manifest unauthenticated; an internal enterprise API might require a bearer token to even see what tools are available.
+
+## How This Differs From MCP's `.well-known` Proposals
+
+The MCP community's SEP-1649 (Server Cards) and SEP-1960 (Discovery Endpoint) use `.well-known` as a *pointer* to MCP infrastructure. The server card tells you where the MCP endpoint is, what transport it uses, and how to authenticate, then you connect to the MCP server and go through the JSON-RPC handshake to learn what tools are available.
+
+This proposal uses `.well-known` as the *interface itself*. The manifest doesn't point you to a separate server; it tells you everything (tools, parameters, intent, errors, auth scopes, resources) in a single static JSON document. The LLM's orchestrator reads the manifest and calls the API's existing HTTP endpoints directly.
+
+The distinction matters because it determines how much new infrastructure the producer must deploy. An MCP server card still requires an MCP server. This manifest requires one additional route handler and a JSON document.
+
+**A necessary aside on Streamable HTTP.** MCP's Streamable HTTP transport, which shipped in 2025, meaningfully narrows the infrastructure gap I'm describing. An MCP server over Streamable HTTP doesn't require a separate long-running process; it can be a set of route handlers in your existing API server, similar in deployment weight to the manifest endpoint itself. I don't want to pretend this transport doesn't exist, because it changes the calculus.
+
+What Streamable HTTP doesn't change is the *protocol surface area*. The consumer still needs the MCP SDK. The producer still implements JSON-RPC request/response handlers. The protocol still carries concepts like sampling, roots, and dynamic tool registration that HTTP-callable APIs don't need. Streamable HTTP made MCP lighter to deploy; it didn't make MCP narrower in scope. The manifest's advantage isn't primarily about deployment weight anymore; it's about *contract narrowness*: a manifest describes exactly and only what an HTTP-callable API needs to express, without carrying protocol surface area designed for use cases it doesn't have.
+
+## What the Manifest Adds Beyond MCP
+
+**Structured intent.** The `intent` block is the manifest's most important differentiator. MCP tool descriptions are free-text, while this manifest provides structured guidance covering *when* to call, *what to resolve first*, and *when not to call*. This is the difference between handing someone a phone book and handing them a decision tree, and in my own experience building agentic systems, LLMs tend to perform better with prescriptive, structured guidance than with freeform descriptions. I'll be upfront that this is experiential judgment, not a benchmarked claim, and the reference implementation will need to validate it against real tool selection accuracy.
+
+An earlier draft included a `confidence_hint` field ("High confidence if user mentions specific account. Low if vague."). I cut it because it has no defined evaluation contract: there's no scale, no specification for how an orchestrator should weigh competing hints across tools, and no way for a machine to act on it without semantic interpretation. That makes it prompt engineering dressed up as structured data, which is the same thing I criticize later when explaining why I cut the workflow block. The `when` and `avoid_when` fields already carry the routing signal; an undefined confidence field would add noise, not precision.
+
+An important distinction worth drawing here: the intent block is *domain knowledge expressed in a format LLMs can consume*, not prompt engineering. "Call this when the user asks about spending patterns" is domain knowledge that the API producer genuinely owns and is best positioned to articulate. "Use chain-of-thought reasoning before calling this tool" would be prompt engineering that belongs in the application layer, not in the manifest. The line between these two is real, and the intent block should stay firmly on the domain knowledge side of it.
+
+**Declarative error semantics.** MCP has no standardized error contract, which means every server handles failure differently and the LLM must learn each server's error patterns through experience or custom documentation. The `errors` block in this manifest tells the LLM what failure looks like, whether it's safe to retry, and what to communicate to the user, all before the first call is ever made. This is where I believe the proposal can leapfrog MCP rather than just matching it.
+
+**Consumer requirements and structured returns.** The `consumer_requirements` block at the service level describes baseline expectations (content types, whether responses stream), while each tool's `returns` block provides a structured output schema that enables typed output-to-input binding between tools. This matters for orchestration: instead of burning tokens having the LLM parse a prose description of what a tool returns, the orchestrator can programmatically understand response shapes and map them to subsequent tool inputs. Response size characteristics live at the tool level where they belong, since a summary endpoint and a full history endpoint on the same service have very different profiles.
+
+**Full JSON Schema for complex parameters.** The simplified parameter format (`type`, `required`, `description`) covers the common case where parameters are flat and straightforward. For APIs with conditional requirements, discriminated unions, or complex nested objects, any parameter can include a `json_schema` field containing a standard JSON Schema object. This avoids reinventing schema validation while keeping the simple case simple: you don't need JSON Schema for a required string parameter, but it's there when your request body has polymorphic variants or mutually exclusive field groups.
+
+**Auth-scoped capability exposure.** The `auth` block maps scopes to tool IDs, so an LLM connecting with read-only credentials can see which tools it's able to call before attempting anything. To be clear about the security model here: the manifest is a static document and the auth block is a *routing hint* that prevents wasted calls, not a security boundary. The service still enforces authorization server-side on every request, and an agent that calls an endpoint it shouldn't will receive a 403, which the errors block already describes how to handle gracefully. The manifest tells the orchestrator "don't bother trying these endpoints with your current credentials," saving round trips and failed calls rather than replacing server-side access control.
+
+**Agent identity without an identity protocol.** One of the sharpest critiques of the current agentic ecosystem is that agent identity doesn't travel across frameworks. When an LLM calls a tool on behalf of a user, the service often needs to distinguish *which agent* is calling, not for security (that's what OAuth handles) but for observability, audit trails, and per-agent rate limiting. MCP hasn't solved this yet. The manifest's `agent_identification` sub-block doesn't invent agent identity infrastructure; instead it creates a place where a service can say "I need to know who you are, here's how to tell me" through a simple header convention. The actual identity system remains whatever the organization already uses. Describe the expectation, don't implement the machinery.
+
+**Policy declaration without a policy engine.** The current state of AI governance in production is, charitably, that policy enforcement lives in READMEs, Slack threads, and the hopes of whoever deployed the agent. The manifest's `policy` block addresses this with *declarations* rather than *enforcement*: `human_approval_required` flags which tools need a human in the loop, `redact_from_logs` identifies sensitive parameters, and `policy_url` points to the full governance document. The orchestrator decides *how* to enforce these; the manifest just says *what the rules are*. This is a narrow, deliberate slice of the governance problem. Anything that requires runtime negotiation about permissions or dynamic capability adjustment based on real-time context is a session-level concern that belongs in a runtime protocol. The 90% case, however, where policies are knowable in advance and simply need to be communicated, fits naturally in a static manifest.
+
+## What the Manifest Deliberately Doesn't Do: Invocation Normalization
+
+There's one thing MCP provides that this manifest does not attempt to replace, and I want to address it directly rather than let it become the unspoken objection that undermines everything above.
+
+MCP normalizes invocation. When an orchestrator talks to fifteen different APIs through MCP, it gets a consistent request/response envelope regardless of whether the underlying API returns `{ "data": [...] }`, `{ "results": [...], "next_cursor": "..." }`, or a flat array with pagination in HTTP headers. The orchestrator writes one integration pattern and MCP absorbs the heterogeneity. That's a genuine and significant contribution.
+
+This manifest does not normalize invocation. Each API still returns its native response format, its native error codes, and its native pagination scheme. The manifest *describes* these things (the `returns` block, the `errors` block, the response size characteristics), but it doesn't *homogenize* them.
+
+I think this is the right architectural boundary, and I want to explain why rather than hand-waving it.
+
+Discovery and intent are *static* concerns. What tools exist, when to call them, what parameters they take, what scopes they require: these change at deploy time, not at request time. A static manifest is the natural home for static metadata, and trying to serve it through a runtime protocol is unnecessary weight.
+
+> **Static problems deserve static solutions. Runtime problems deserve runtime solutions. Conflating the two is how protocols accumulate weight they don't need.**
+
+Invocation normalization is a *runtime* concern. Adapting heterogeneous response formats into a consistent envelope happens per-request, depends on the actual response content, and benefits from shared client-side logic that can evolve independently of the APIs it wraps. This is a client library problem, and I mean that descriptively, not dismissively.
+
+The consumer-side orchestrator library that this proposal depends on (and I'll be direct: the proposal's viability hinges on this library being good) needs to handle response normalization as one of its core responsibilities. That means parsing each API's native response format using the `returns` schema in the manifest, normalizing it into a consistent envelope the orchestrator can reason about, and handling pagination, error mapping, and retry logic per the manifest's declarations. This is a significant engineering effort. It's closer in scope to building an SDK than to building a simple HTTP client, and I don't want to undersell that.
+
+The bet is that one well-built open-source normalization library, informed by structured manifest metadata, is a better investment than thousands of individual MCP servers each re-implementing the same normalization behind a JSON-RPC interface. Whether that bet pays off depends entirely on the quality of the library. I intend to build it, and the community will judge whether it delivers.
+
+## Temporal Patterns: How a Static Manifest Handles a Dynamic World
+
+Having noodled on this for a while now, I think the most common objection to this proposal will likely be: "MCP handles streaming and long-running operations, and a static JSON document doesn't."
+
+I had this same thought while trying to punch holes in my own idea, and the objection conflates two things that are worth separating: *transport mechanisms* and *capability descriptions*. SSE, WebSockets, webhooks, and polling are transport mechanisms that already exist everywhere. What's actually missing is a *description layer* that tells an AI consumer how to interact with tools that use those patterns.
+
+The manifest handles this by describing the *shape* of temporal interactions without prescribing policy:
+
+```json
+{
+  "id": "generate_report",
+  "path": "/reports/generate",
+  "method": "POST",
+  "temporal_behavior": {
+    "pattern": "async_job",
+    "status_endpoint": "/reports/{job_id}/status",
+    "status_response_type": "event_stream",
+    "terminal_states": ["completed", "failed", "cancelled"],
+    "signals": ["progress", "warning", "needs_input"],
+    "result_endpoint": "/reports/{job_id}/result",
+    "reconnection": {
+      "supports_last_event_id": true,
+      "missed_events_recoverable": true,
+      "fallback_poll_interval_seconds": 5
+    }
+  },
+  "event_schema": {
+    "progress": {
+      "description": "Percentage complete",
+      "fields": { "percent": "number" }
+    },
+    "needs_input": {
+      "description": "Service requires a decision to continue",
+      "fields": { "prompt": "string", "options": "array" },
+      "resolution_endpoint": "/reports/{job_id}/respond"
+    }
+  }
+}
+```
+
+Notice what's *not* here: no thresholds, no durations, no "do this when that happens." The manifest describes topology, meaning what states exist, what signals are emitted, and where to look. Whether a five-minute silence from a particular endpoint is a stall or perfectly normal behavior is a judgment call that depends on context the protocol cannot and should not have. That's the orchestrator's job.
+
+The `needs_input` signal with a `resolution_endpoint` handles the bidirectional case that MCP uses persistent connections for. When the service needs something from the LLM mid-operation, it fires an SSE event, the orchestrator picks it up, injects it into context, gets a response, and POSTs it back. To be honest about the tradeoff here: the orchestrator still holds an open SSE connection for the duration of the async job, so this isn't eliminating persistent connections entirely. The advantage is infrastructure compatibility rather than the absence of persistence, since SSE over HTTP generally has better support across proxies, CDNs, and load balancers than WebSockets, with built-in reconnection semantics and no upgrade handshake. It's a simpler persistent connection, not the absence of one.
+
+Reconnection matters here more than it does for typical SSE use cases. If an orchestrator loses its connection mid-job and reconnects, it needs to know whether the service supports `Last-Event-ID` replay, whether missed events (including a `needs_input` signal) are recoverable, and what fallback behavior to use. The `reconnection` sub-block in the temporal behavior description addresses this explicitly: the service declares whether it supports event ID tracking, whether missed events can be replayed, and what poll interval to use as a fallback. Without this, a dropped connection during an async job could stall indefinitely with no recovery path, which is exactly the kind of silent failure that erodes trust in agentic systems.
+
+## Deliberate Scope Boundaries
+
+This proposal is designed to carve off the largest possible chunk of MCP's surface area with the smallest possible footprint, and being precise about what falls inside and outside that boundary is an architectural choice rather than an apology.
+
+### What This Fully Replaces
+
+**Tool discovery and intent.** For any HTTP-callable service, and there are a lot of them, the manifest eliminates the need for a separate MCP server to handle capability discovery, semantic context, and invocation guidance. The service describes itself, the orchestrator reads the description, and calls the endpoints directly. The consumer still needs a capable manifest client library that handles discovery, caching, auth negotiation, and response normalization (see the normalization section above). That library is a significant engineering effort, closer in scope to an SDK than to an HTTP client, and the proposal's viability depends on it being good enough that orchestrator developers don't have to reinvent it independently.
+
+**Resource exposure.** MCP's resource primitive ("here's data the LLM should read into context") maps directly to the manifest's `resources` block: a GET endpoint with enough semantic metadata that the LLM knows when and why to fetch it.
+
+**Auth-scoped capability filtering.** Declarative and introspectable, without requiring the consumer to trust server-side logic.
+
+**Static prompt templates.** A `prompts` block with template strings and parameter descriptions, all just data.
+
+### What This Covers for Most Cases
+
+**Async operations with state.** The temporal behavior block handles report generation, batch processing, deployment pipelines, and most real-world async patterns, while the `needs_input` pattern covers mid-operation negotiation without persistent channels.
+
+**Multi-tool sequencing.** An earlier draft of this proposal included a `workflows` block for describing tool dependencies and sequences. After critical review, I cut it. The problem is that a workflow block with natural language conditions (like `"only if anomalies detected"`) *looks* structured, which invites orchestrator developers to parse it programmatically, yet it *requires* semantic interpretation to evaluate, which means it'll fail mechanically and cause real bugs. The intent block already handles sequencing through `prerequisites` ("resolve account_summary first") and `avoid_when` guidance, which is where that information naturally belongs. Sequencing guidance expressed as domain knowledge in individual tool intents is honest about what it is; a workflow block dressed up as structured data creates false expectations. If a future version of this spec adds formal workflow support, it needs machine-parseable conditions with a real evaluation contract, not natural language in JSON clothing.
+
+**Agent identity and governance basics.** The `agent_identification` and `policy` blocks address the most commonly cited production gaps (audit trails, human-in-the-loop requirements, and sensitive parameter handling) without requiring identity infrastructure or a policy engine. The manifest declares what the service expects, and the orchestrator enforces it, covering the common case where governance rules are knowable in advance.
+
+### What MCP (or Its Successors) Still Owns
+
+> **Credibility comes from being honest about what you don't solve, not just from what you do.**
+
+**True real-time bidirectional sessions.** Collaborative editing, interactive debugging, and live pair-programming with an AI are scenarios where both sides are in sustained stateful dialogue and either can initiate at any time. This is a genuinely different interaction pattern, and pretending the manifest solves it would undermine the proposal's credibility.
+
+**Local and non-HTTP tooling.** This is worth being especially candid about: a large portion of MCP's current deployment footprint is local tooling through the stdio transport. File system access, database queries, IDE integrations, and shell commands in tools like Claude Code and Cursor aren't HTTP services and can't serve a `.well-known` endpoint. This proposal doesn't cover that category at all. MCP's stdio transport is the right tool for local tool integration, and nothing in this proposal changes that. The manifest is specifically scoped to the HTTP-callable API landscape, which is large and growing, yet it would be dishonest to pretend it covers the full surface area of what MCP does today.
+
+**Sampling and model-to-model delegation.** MCP's sampling capability lets a server request that the client perform an LLM completion, essentially asking the agent to reason about an intermediate result mid-operation. The `needs_input` pattern in this proposal handles human-in-the-loop decisions, yet it doesn't cleanly express "I need the LLM to think about this before I continue." This is a real pattern in code analysis and complex reasoning chains that the manifest doesn't address.
+
+**Dynamic tool registration.** MCP servers can expose different tools based on runtime context beyond just auth scopes: the loaded project, the current user's role, the state of an ongoing operation. The manifest is static by design, which means truly dynamic capability sets that change based on non-auth context are outside its model.
+
+**Stateful server-side context accumulation.** Services that do heavy server-side computation building incrementally across interactions, like a code analysis server that parses a codebase as the LLM explores it, benefit from a persistent connection with server-managed state. This is real, though I'm going to guess, pretty niche.
+
+**Dynamic policy negotiation.** When a service needs to adjust what an agent can do based on real-time context, whether that's revoking permissions mid-session, escalating approval requirements based on accumulated risk, or dynamically scoping capabilities based on conversation state, that's a session-level concern requiring a runtime protocol. The manifest handles static policy declaration; dynamic policy enforcement is a different problem entirely.
+
+**Immediate capability revocation.** A static manifest paired with HTTP caching means there's a window where an orchestrator could be working from stale data. If a tool is removed or its auth requirements change, the orchestrator won't know until it re-fetches. HTTP cache headers and the versioning block mitigate this, yet they don't solve the "I removed a dangerous tool and need all agents to stop calling it right now" problem the way MCP's live connection does. For APIs that handle money, access control, or PII, this staleness window is a meaningful concern, not just a theoretical one. Server-side authorization remains the ultimate safeguard (a removed tool's endpoint should return 404 or 403 regardless of what the cached manifest says), yet relying on server-side errors as the primary invalidation mechanism isn't elegant.
+
+**Cross-service orchestration.** When an agent needs to coordinate calls across multiple services as a logical unit (book a flight, reserve a hotel, charge a card), that requires saga/compensation patterns that neither MCP nor this manifest addresses well. Cross-service workflows, rollback, output-to-input binding between different services, and transactional consistency are real agentic patterns that remain an open problem for the ecosystem broadly, and this proposal doesn't pretend to solve them.
+
+**Health and availability signaling.** The manifest doesn't describe how to check if a service is up, degraded, or in maintenance mode. An orchestrator choosing between two services that offer similar capabilities has no signal for which one is currently healthy. This is a real operational gap, and it cuts to a broader tradeoff worth naming: a manifest is a build artifact, which means it's lightweight to deploy but can fail silently when it becomes stale. A running process (like an MCP server) can be monitored, can report its own health, and can fail loudly. The manifest trades operational sophistication for deployment simplicity, and that's a tradeoff each team should evaluate for their own risk tolerance.
+
+> My value proposition here isn't "replace MCP." It's **"for HTTP-callable APIs, the discovery and intent layer that MCP bundles into a runtime protocol can be handled with a static manifest, and the invocation normalization can be handled with a shared client library."** MCP remains the right tool for local integrations, bidirectional sessions, and the other patterns listed above. The argument is that these should be the *only* reasons you reach for a full protocol, not the default for every integration.
+
+## A Note on Positioning
+
+Let me be clear that this proposal is **not** an attack on MCP. MCP did something extraordinary: it compressed a decade of standards thinking into fourteen months and proved that AI consumers need semantic capability discovery. Every major AI provider signed on, seventeen thousand servers were built, and the ecosystem hit [ninety-seven million monthly SDK downloads](http://blog.modelcontextprotocol.io/posts/2025-12-09-mcp-joins-agentic-ai-foundation/) as of the Linux Foundation donation in late 2025. That is a remarkable achievement by any measure.
+
+MCP's success validated the *need*, not necessarily the *implementation*. The community itself is already signaling this through the 2026 roadmap's focus on `.well-known` discovery, stateless transports, and reducing infrastructure weight, all of which point in the direction this proposal formalizes. The "MCP is dead" discourse circulating right now is hyperbolic, yet the underlying frustration with context bloat, authentication friction, and operational overhead is real and it's coming from people building production systems, not armchair critics.
+
+REST didn't reject the problems SOAP solved; it argued those problems didn't require that much machinery. This proposal makes the same argument about MCP for the HTTP-callable API case: the need is real, the solution can be simpler.
+
+It's also worth acknowledging that MCP's 2026 roadmap is actively moving toward lighter transports and `.well-known` discovery. If MCP evolves to the point where a lightweight, stateless, HTTP-native integration path exists within the protocol itself, that validates this thesis even if the specific manifest format proposed here isn't what gets adopted. The goal is the design direction, not the empire. Frankly, the most likely outcome may be that MCP absorbs the good ideas from proposals like this one into its own evolution, and if that happens, the ecosystem wins regardless of whose name is on the spec.
+
+> **The goal is the design direction, not the empire.**
+
+MCP walked so we could run.
+
+## How This Actually Gets Built
+
+A proposal that ignores the realities of adoption isn't really a proposal; it's a thought experiment. If you're an API provider reading this, you're already asking yourself: "Who writes this manifest? How do I keep it in sync? What happens when someone gets the intent block wrong and an LLM starts making bad calls?"
+
+These are fair questions, and they deserve a practical answer.
+
+Most well-designed APIs already have the raw material for a manifest sitting in their existing infrastructure. Your OpenAPI spec contains your routes, methods, parameters, and response types. Your route definitions contain your auth requirements. Your documentation contains the semantic context that an LLM needs. The manifest is a *superset* of information you already maintain, not a second source of truth you have to keep alive in parallel.
+
+The realistic path to adoption isn't hand-authoring JSON. It's tooling that generates the structural portion of the manifest from existing API metadata (your OpenAPI spec, your route decorators, your middleware configuration) and then lets the developer add the thin semantic layer that machines can't infer: the `intent` block, the `errors` context, the `policy` declarations. That semantic layer is the only genuinely new authoring work, and it's the part that matters most because it's the part that benefits most from being written by the humans who actually understand the API's domain.
+
+For the "keeping it in sync" concern, the manifest should be generated as part of the build or deploy pipeline rather than maintained as a separate artifact that drifts. When a route changes, the structural manifest regenerates automatically. When the semantic layer needs updating because you added a new tool, changed an error contract, or revised a policy, that's an explicit, versioned change alongside the code it describes. This is the same discipline teams already apply to OpenAPI specs, and the tooling patterns are well-established.
+
+This represents a different maintenance burden than MCP, though the gap has narrowed. MCP's Streamable HTTP transport means the server-side deployment weight is no longer the primary differentiator (see the Streamable HTTP aside above). The difference that remains is *contract scope*: the manifest is a static document that describes discovery, intent, and API shape. An MCP server, even over Streamable HTTP, implements a runtime protocol with JSON-RPC handlers, capability negotiation, and protocol surface area beyond what most HTTP-callable APIs need. One is a build artifact; the other is application code.
+
+The reference implementation will include a generator that takes an OpenAPI spec and produces a scaffold manifest with clear markers where the developer needs to add semantic context. The structural scaffolding, meaning routes, parameters, and auth, is the quick part. The intent layer, error context, and policy declarations require genuine domain expertise and iterative refinement against real LLM behavior, and I don't want to undersell that. This isn't a one-time afternoon task; it's an ongoing product concern, much like maintaining good API documentation. The consumer's burden shifts from integrating with MCP's SDK to integrating with the manifest client library, which is a comparable dependency but one that's shared across all manifest-compliant APIs rather than reimplemented per service.
+
+## The Path Forward
+
+This is the beginning of a conversation, not the end of one. The proposal needs pressure-testing by people building production agentic systems who can identify edge cases, use cases, and implementation constraints I haven't considered.
+
+What comes next is concrete, and the sequencing matters:
+
+**First, a reference implementation.** This is the only thing that matters in the short term. A minimal Node.js/TypeScript library with two components: a producer-side module that any Express or Fastify API can drop in to expose a compliant `/.well-known/ai-capabilities` endpoint, including a manifest generator that scaffolds from existing OpenAPI specs; and a consumer-side orchestrator client that handles manifest fetching, caching, staleness detection, auth negotiation, temporal state management, response normalization, and policy enforcement. The consumer-side library is the harder and more important of the two, because the proposal's viability depends on orchestrator developers not having to reinvent these capabilities independently. I don't want to understate the engineering effort here: this client library is closer in scope to an SDK than to an HTTP wrapper. It needs to handle response normalization across heterogeneous APIs, pagination traversal, auth token renewal, retry logic, and temporal state machines. That's a multi-month effort by experienced engineers, not a weekend project, and it needs to be good enough that it's genuinely simpler than integrating with an MCP server, or the value proposition falls apart.
+
+**Second, real-world adoption with a small number of API providers** who are willing to serve manifests and help validate the spec against production usage. The chicken-and-egg problem here is real: no orchestrator will support manifests until APIs serve them, and no API will serve manifests until orchestrators consume them. The realistic path through this is to build both sides of the reference implementation, prove them against two or three willing API partners, and publish the results. Standards bodies formalize what's already working; they don't create adoption for things that don't exist yet.
+
+**Then, and only then, formal standards work:** an `x-ai` annotation convention for OpenAPI specs that can gain informal adoption immediately, an IETF Internet-Draft for the well-known URI registration (which is a genuinely lightweight process under RFC 8615), and eventually a formal proposal to the OpenAPI Initiative's Technical Steering Committee if the convention gains enough traction to warrant it. The OAI process is measured in years, not months, and I want to be realistic about that timeline rather than hand-waving it.
+
+If you're building AI systems and have thoughts on where this falls short, where it overreaches, or what I've missed entirely, I want to hear it. The right place for this conversation is to come find me on LinkedIn or (preferably) find me through GitHub so we can collaborate.
+
+The field moves fast enough that the right answer probably needed to exist six months ago. I welcome any help in figuring out what it is.
