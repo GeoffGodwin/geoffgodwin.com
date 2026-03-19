@@ -35,7 +35,6 @@ html[data-theme="dark"] {
 .prose em,
 em,
 i {
-  font-family: var(--font-sriracha);
   font-style: italic;
 }
 

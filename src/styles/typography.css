@@ -14,7 +14,7 @@
     }
 
     h3 {
-      @apply font-sriracha italic;
+      @apply italic;
     }
 
     p,
@@ -93,6 +93,11 @@
 
     blockquote {
       @apply rounded-r-xl border-s-[3px] border-accent/80 bg-accent/5 py-4 pr-5 pl-6 font-app font-medium text-xl text-foreground/95 shadow-sm shadow-accent/5 wrap-break-word not-italic;
+    }
+
+    blockquote p::before,
+    blockquote p::after {
+      content: none;
     }
 
     /* ===== Table of Contents (modern card) ===== */
