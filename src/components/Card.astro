@@ -11,7 +11,7 @@ type Props = {
 
 const { variant: Heading = "h2", featured = false, id, data, filePath } = Astro.props;
 
-const { title, description, ...props } = data;
+const { title, description, postType, ...props } = data;
 ---
 
 <li
@@ -24,6 +24,7 @@ const { title, description, ...props } = data;
     "hover:shadow-lg hover:shadow-accent/10",
     featured && "border-accent/40 bg-accent/5 shadow-[0_0_20px_-5px_rgba(var(--accent),0.15)]",
   ]}
+  data-post-type={postType}
 >
   <!-- Cursor-following glow -->
   <div
@@ -39,6 +40,15 @@ const { title, description, ...props } = data;
   </div>
 
   <div class="relative z-5">
+    {postType === "paper" && (
+      <span class="mb-2 inline-flex items-center gap-1 rounded-full border border-accent/25 bg-accent/8 px-2 py-0.5 font-cartograph text-[10px] font-medium tracking-wider text-accent uppercase">
+        <svg class="size-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+        Technical Paper
+      </span>
+    )}
     <a
       href={getPath(id, filePath)}
       class="text-lg font-semibold text-foreground transition-colors duration-200 group-hover/card:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"

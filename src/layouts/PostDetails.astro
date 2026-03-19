@@ -9,6 +9,7 @@ import ShareLinks from "@/components/ShareLinks.astro";
 import BackButton from "@/components/BackButton.astro";
 import BackToTopButton from "@/components/BackToTopButton.astro";
 import GalleryEmbed from "@/components/GalleryEmbed.astro";
+import PostAudio from "@/components/PostAudio.astro";
 import { getPath } from "@/utils/getPath";
 import { slugifyStr } from "@/utils/slugify";
 import { SITE } from "@/config";
@@ -31,6 +32,8 @@ const {
   timezone,
   tags,
   hideEditPost,
+  audioUrl,
+  postType,
 } = post.data;
 
 const { Content } = await render(post);
@@ -87,11 +90,35 @@ const nextPost =
     id="main-content"
     class:list={["relative app-layout pb-12", { "mt-8": !SITE.showBackButton }]}
     data-pagefind-body
+    data-post-type={postType}
   >
     <!-- Post header section -->
     <header class="post-header relative mb-10 text-center">
       <div class="post-hero-bg"></div>
       <div class="relative z-10 rounded-3xl border border-border/20 bg-muted/5 px-6 py-8 backdrop-blur-md sm:px-10 sm:py-12">
+        <!-- Post type badge -->
+        <div class="mb-4 flex justify-center">
+          {postType === "paper" ? (
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-cartograph text-xs font-medium tracking-wide text-accent uppercase">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+              Technical Paper
+            </span>
+          ) : (
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 font-cartograph text-xs font-medium tracking-wide text-accent uppercase">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                <path d="M2 2l7.586 7.586"></path>
+                <circle cx="11" cy="11" r="2"></circle>
+              </svg>
+              Blog Post
+            </span>
+          )}
+        </div>
+
         <!-- Title -->
         <h1
           transition:name={slugifyStr(title)}
@@ -176,6 +203,12 @@ const nextPost =
 
       </div>
     </header>
+
+    {audioUrl && (
+      <div class="mx-auto mt-6 mb-2 max-w-2xl">
+        <PostAudio src={audioUrl} title={title} />
+      </div>
+    )}
 
     <article
       id="article"
