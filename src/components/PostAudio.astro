@@ -295,8 +295,8 @@ const { src, title } = Astro.props;
 
     function syncUI() {
       const paused = audio.paused;
-      iconPlay.style.display = paused ? "" : "none";
-      iconPause.style.display = paused ? "none" : "";
+      iconPlay.classList.toggle("post-audio-hidden", !paused);
+      iconPause.classList.toggle("post-audio-hidden", paused);
       btn.setAttribute("aria-label", paused ? "Play narration" : "Pause narration");
       if (wrap) wrap.classList.toggle("playing", !paused);
     }
