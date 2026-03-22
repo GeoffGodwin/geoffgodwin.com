@@ -1,0 +1,190 @@
+---
+title: "Tekhton v2: Building the System That Builds Itself"
+description: "Tekhton v1 could execute tasks. v2 can pursue milestones to completion, recover from failures, split oversized work, and harden itself against the security problems I didn't know I had. It also built most of itself."
+pubDatetime: 2026-03-22T10:00:00Z
+tags:
+  - engineering
+  - architecture
+  - agentic systems
+featured: false
+draft: false
+audioUrl: "https://audio.geoffgodwin.com/tekhton-v2-building-the-system-that-builds-itself_final.mp3"
+---
+
+import RepoCard from "@/components/RepoCard.astro";
+
+When I published the [Tekhton v1 post](/posts/tekhton-v1/), I ended it with a list of things the system couldn't do yet. It could execute a milestone but couldn't progress from one to the next on its own. It could collect non-blocking notes but didn't clean them up. It could detect drift but couldn't replan when the design outgrew its original shape. It adapted budgets per task but didn't learn from its own history.
+
+Six days and 191 commits later, all of those things work.
+
+<RepoCard
+  owner="GeoffGodwin"
+  repo="tekhton"
+  description="One intent. Many hands."
+  language="Shell"
+/>
+
+But the number I keep coming back to is not the commit count. Tekhton v2 was largely built by Tekhton itself. I used the pipeline to implement its own next version, and starting after Milestone 12, I wasn't even running the stable v1 anymore. Each time a milestone completed and passed its tests, I swapped in that latest build as the running copy. The system was laying track in front of its own train.
+
+That is a strange experience, and I'll get into why later.
+
+## Table of contents
+
+## What v2 Actually Is
+
+Tekhton v1 was a pipeline. You give it a task, it coordinates Scout → Coder → Reviewer → Tester, and it gives you back implemented, reviewed, tested code. That was the whole loop. Think of it like a group of skilled dwarves in the Mines of Moria: individually excellent at their jobs, collectively productive, but nobody in the company has any idea what Durin's master plan looks like or which tunnel to dig next.
+
+Tekhton v2 is an adaptive pipeline. The same crew is still there, but now there's a foreman watching throughput, a supervisor who knows the production schedule, and a quality team that can shut down the operation and retool when something isn't working. The system understands how much context it's injecting, can tell when a milestone is done, can recover from failures instead of dying, can split work that's too large, can track its own performance over time, and can run milestone after milestone until the job is finished or something genuinely blocks it.
+
+The numbers tell part of the story. The codebase went from around 5,000 lines of shell to over 17,000. The lib directory grew from 13 modules to 61. The test suite went from around 30 tests to 117. Twenty-one milestones were completed, several of which the pipeline split into sub-milestones on its own when it determined the original scope was too large for a single run. But the numbers don't capture the thing I actually learned, which is that the hard problems in agentic systems are not the ones you think they are when you start.
+
+## The First Thing I Built Was Security, and I'm Glad I Did
+
+v1 had a security problem I didn't fully appreciate until I did a proper audit. The pipeline.conf file was loaded via `source`, which is bash's way of saying "execute this file as code." That meant a config file could contain `$(rm -rf /)` and the shell would cheerfully run it. In plain terms, a configuration file that's only supposed to hold settings like "use this model" or "set this budget" could instead hold instructions that delete your entire filesystem, and the shell would just do it, no questions asked. Temp files lived at predictable paths in `/tmp`, creating race conditions. Agent prompts injected file contents without any boundary markers, so adversarial content in a project file could potentially hijack an agent's instructions.
+
+Think of it like running a warehouse where every door is propped open, every badge reader is disabled, and you've just decided to let autonomous forklifts roam the building unsupervised. Before I gave the system more autonomy, I needed to lock the building down.
+
+I found 23 findings across 10 categories, including 2 critical ones. Fixing them first, before adding any of the autonomy features, was probably the best sequencing decision I made in the entire project.
+
+The config parser was rewritten from a `source` call into a proper key-value parser that rejects lines containing `$(`, backticks, semicolons, pipes, and other shell metacharacters. Temp files moved into per-session directories created with `mktemp -d` and cleaned up in an EXIT trap. A lock file prevents concurrent pipeline runs against the same project. Prompt templates got anti-injection directives and explicit content boundary markers. File reads got size caps to prevent a giant file from blowing up the shell.
+
+The short version: the system now treats every input as potentially hostile. Config files get parsed, not executed. Temp files get isolated and cleaned up. Prompts have clear fences around injected content. Nothing trusts anything it hasn't validated first.
+
+None of this is exciting work, but it is the kind of work that determines whether a system is a toy or a tool. If you're building something that autonomously invokes agents, and those agents read project files and execute commands, the attack surface is real. I wanted to harden it before I made the system more autonomous, not after.
+
+That said, I know the security story isn't complete. There's no dedicated security agent in the pipeline yet, no "permanent reviewer" whose only job is to audit every change for vulnerabilities, injection risks, and unsafe patterns. It's a known gap, and I intend to tackle it in v3 alongside the concurrency work where I'll also be adding a dedicated tech debt agent that runs continuously in parallel, doing nothing but cleaning up accumulated debt.
+
+That tech debt agent is worth pausing on, because it represents something new. No company hires a full-time engineer whose sole job is to pay down tech debt. The cost-benefit analysis is brutal: tech debt reduction has real but difficult to quantify returns that don't translate well into a headcount-justified line item on your OpEx sheet. In the agentic era though? That equation changes completely. When the cost of a dedicated worker drops to near zero, you can staff positions that were never economically justifiable before.
+
+> A 24/7 tech debt janitor with a broom and infinite patience goes from being a luxury to just being good infrastructure.
+
+## Context Accounting Changed How I Think About Prompts
+
+v1 assembled context by concatenating blocks of text: the architecture file, the scout report, the reviewer's notes, the coder's summary, human notes. It worked, but I had no visibility into how much of the model's context window I was actually consuming, and no mechanism for doing anything about it when the answer was "too much."
+
+It was like packing for a trip by bringing 3 extras of every item. You technically have everything you need, but also forty pounds of things you don't.
+
+v2 added token accounting. Every context component gets measured before it goes into a prompt. The pipeline logs a structured breakdown showing each block's name, character count, estimated token count, and percentage of the context budget consumed. If the total exceeds a configurable threshold, a context compiler kicks in and starts compressing: it extracts only the sections of large artifacts that are relevant to the current task's keywords, truncates the least important components first, and injects a note when compression occurs so the agent knows it's working with reduced context.
+
+In simpler terms: every AI model has a fixed-size window of text it can process at once, and before v2, I had no idea how much of that window each piece of context was consuming. Now the pipeline measures every block before assembling the prompt, and if the total is too large, it intelligently trims the least relevant pieces first rather than blindly cramming everything in.
+
+What surprised me about this feature was not the implementation but what it revealed. I had been injecting entire architecture files into every agent call as a matter of course, and it turned out that for most tasks, the agent only needed a few sections of that file. The rest was noise that consumed budget and probably diluted the signal.
+
+> Once I could see the context economics, the waste became obvious. Measurement changed behavior before optimization did.
+
+That's a pattern I've seen throughout my career in software architecture. You don't optimize what you can't measure, and the act of measuring often tells you more than the optimization itself.
+
+## The Milestone State Machine Was Where v2 Got Interesting
+
+In v1, a "milestone" was just a task string I typed in. The pipeline didn't know what a milestone was, didn't know which one it was working on, didn't know when it was done, and didn't know what came next. It was a carpenter who could build whatever you described but had no idea what the blueprint looked like or which room came next.
+
+v2 added a proper milestone state machine. The pipeline parses CLAUDE.md to extract milestone definitions, tracks the current milestone in a persistent state file, checks acceptance criteria after each run, and records disposition: `COMPLETE_AND_CONTINUE`, `COMPLETE_AND_WAIT`, `INCOMPLETE_REWORK`, or `REPLAN_REQUIRED`. Essentially, the pipeline now reads a project plan, knows which step it's on, can tell when that step is done, and decides what to do next: move forward, wait for me, retry with a different approach, or flag that the plan itself needs to change.
+
+With `--auto-advance`, the pipeline loops. It completes a milestone, checks acceptance, advances to the next one, and keeps going until it hits a configured limit, a failure, or a milestone that requires human input. With `--complete`, it goes further: if a run fails, it classifies the failure, decides whether recovery is possible, and retries with a different strategy.
+
+This is the feature that made Tekhton feel like a genuinely different kind of tool. v1 was a pipeline I ran. v2 is a system I point at a body of work and let run. The distinction matters because it changes the human's role from operator to supervisor, or more accurately from line worker to floor manager. I'm not typing individual task strings anymore. I'm reviewing milestone completions and intervening when the system hits something it can't resolve on its own.
+
+But here's the thing I want to be clear about: I'm still the one writing the milestones. I'm still the one deciding what gets built, in what order, and why. The pipeline is an extraordinarily capable dev shop, but it's not coming up with product ideas. It's not questioning whether the architecture should change. That part is still me, and I don't see that changing.
+
+## The Pipeline Learned To Split Its Own Work
+
+One of the more surprising features to emerge during v2 development was milestone splitting. The problem was simple: some milestones, as written in CLAUDE.md, were too large for a single pipeline run. The scout would estimate a high turn count, the coder would exhaust its turn budget, and the run would produce a null result. It's the equivalent of handing someone the complete Wheel of Time series and asking them to summarize it in one sitting: technically a defined task, but not scoped for a single pass.
+
+The fix was to let the pipeline detect this situation and respond to it. When a milestone's estimated scope exceeds a configurable threshold, a splitting agent breaks it into sub-milestones that can each be completed in a single run. The sub-milestones get inserted into the milestone list, and the pipeline proceeds through them in order.
+
+I want to be transparent about something here: I was deliberately over-scoping some of those milestones. Not always, because sometimes I genuinely underestimated the size of a task, which is a trope as old as engineering itself and I'm not immune to it. But often I was writing milestones I knew were too large because I needed to see how the pipeline would handle them. I wanted to watch how it would split them, to what depth it would recurse, and critically, how much richer the resulting sub-milestones would be compared to what I'd originally written. When the splitting agent breaks a milestone apart, it does so against the current state of the codebase, which means each sub-milestone gets scoped with full awareness of what exists right now rather than what I imagined would exist when I wrote the plan days or weeks earlier.
+
+This happened to the pipeline itself during v2 development. Milestone 12, which was originally scoped as "Error Taxonomy and Classification," got split into 12.1 (Error Taxonomy and Classification Engine), 12.2 (Agent Exit Analysis and Real-Time Detection), and 12.3 (Metrics Integration and Structured Log Summaries). Milestone 13 got split similarly. Milestone 15, which covered lifecycle consolidation, split into 15.1 through 15.4, and some of those split again.
+
+The sub-milestones that came out of splitting were consistently better scoped than what I'd written by hand. They had more specific acceptance criteria, more targeted file lists, and more realistic scope. There's an instructive irony there: I built a feature to handle the fact that humans (including me) are bad at estimating scope, and the feature turned out to be better at the estimation than I was.
+
+## Failure Recovery Was Harder Than I Expected
+
+v1's failure story was simple: if something breaks, the run dies and you resume manually. That's fine when you're running one task at a time, but it falls apart once the system is supposed to be autonomous. It's the difference between riding a bicycle and building a self-driving car: on a bike, the moment something feels wrong you just put your foot down and stop. A self-driving car doesn't have that option. It needs to recognize the problem, classify its severity, and execute the right recovery strategy, all while still in motion.
+
+v2 introduced a layered recovery system. At the lowest level, transient errors (API timeouts, rate limits, network blips) get automatic retry with exponential backoff. Above that, turn exhaustion triggers a continuation loop: if the coder runs out of turns but made meaningful progress, the pipeline saves state and resumes with fresh context. Above that, the orchestration loop classifies failures and decides whether to retry, rework, split, or give up.
+
+Think of it as three layers of safety net. The first catches temporary glitches and just tries again after a short wait. The second catches situations where the work is going well but taking longer than expected, so it saves progress and picks up where it left off. The third is the supervisory layer that looks at the bigger picture and decides whether the whole approach needs to change.
+
+The error taxonomy was one of the more interesting design exercises. Errors get classified as transient (retry will help), structural (the approach is wrong, needs rework), resource (out of budget, needs splitting), or fatal (something is fundamentally broken, stop). Each classification triggers a different recovery path. Getting that classification right, especially the distinction between "this failed because of a temporary problem" and "this failed because the approach is wrong," turned out to be harder than writing the recovery logic itself.
+
+The failure I remember most vividly was a TTY escape bug. Some tests that involved interactive prompts were escaping their test harness and running in the actual terminal, because on Linux, `/dev/tty` exists as a kernel device node even when the process has no controlling terminal. The non-interactive guard that worked fine on macOS was silently passing on Linux. It took me a while to figure out why some test runs would hang indefinitely, and the fix was to check for actual terminal interactivity rather than just device node existence.
+
+## The Brownfield Problem Is Real And Advancing
+
+v1 had a planning mode that could interview you about a new project and generate a DESIGN.md and CLAUDE.md. It was good at greenfield work: you start from nothing, the system asks deep questions, and you get a structured foundation. But greenfield is the easy case. It's like furnishing an empty house: total freedom, no constraints, all potential. The hard case is the house someone's been living in for ten years, where every room has furniture that sort of works, half the outlets are on the wrong circuit, and the previous owner's "temporary" fix in the bathroom has somehow become load-bearing.
+
+v2 added brownfield replanning via `--replan`, which takes an existing project with accumulated drift, completed milestones, and evolved code, and produces a delta document showing what needs to change. It also added the Brownfield Intelligence initiative: a crawler that indexes an existing codebase, detects the tech stack, infers build and test commands, and feeds all of that to an agent that synthesizes CLAUDE.md and DESIGN.md from what's already there. Put simply, instead of requiring you to describe your project from scratch, the system can now walk through an existing codebase, figure out what's there, and generate its own project plan based on what it finds.
+
+That last part, milestones 17 through 21, was the final stretch of v2 development. The tech stack detection engine, the project crawler, the smart init orchestrator, incremental rescan, and agent-assisted synthesis. It works, and it's genuinely useful for dropping Tekhton onto a codebase that already exists.
+
+But I'll be honest: this is the area where I feel least finished. Brownfield is intrinsically harder than greenfield because you're not just generating structure, you're inferring intent from existing code, and existing code is full of compromises, historical accidents, and implicit decisions that nobody documented. The system does a credible job, but there's significant room to grow.
+
+And that's exactly what I expected. In the v1 post I said that building v2 would show me what v3 needed to be, and brownfield intelligence is a big part of that answer. The v3 initiative already has an extensive and growing collection of milestones dedicated to making brownfield onboarding smarter: better heuristics, deeper analysis, more accurate inference. I'll share that roadmap soon.
+
+## Using Tekhton To Build Tekhton
+
+I want to talk about this directly because it was the most disorienting and instructive part of the whole experience.
+
+The workflow started simple: clone the Tekhton repo into a second directory, point the v1 pipeline at it, and run milestones. Each milestone was defined in the v2 CLAUDE.md, which I wrote by hand using the planning mode from v1. Then I let the pipeline implement them, one at a time.
+
+Early on, this was straightforward. Milestone 0 (security hardening) and Milestone 1 (context accounting) were well-scoped, had clear acceptance criteria, and the v1 pipeline could handle them in a single run. The scout found the relevant files, the coder made the changes, the reviewer caught issues, the tester added coverage. Normal pipeline behavior.
+
+Then, after Milestone 12, I started doing something more aggressive. Each time a milestone completed and passed its tests, I swapped the running copy of Tekhton for the latest build. The system was no longer just building itself in theory; it was consuming its own output as the tool for the next round of work.
+
+This was a double-edged sword. On one hand, each swap gave me the benefit of the newest features: better error recovery, smarter context management, and the milestone state machine itself. The pipeline was genuinely improving its own capabilities run over run. On the other hand, it created a cannibalistic feedback loop. The project was changing underneath the pipeline's feet. A milestone that expected configuration in one format would collide with a codebase that had already moved to a newer format. The CLAUDE.md file, which the pipeline reads to understand its own milestones, was being modified by the very runs it was driving.
+
+I discovered there was a cyclical paradox at the heart of it, something like the Ship of Theseus but with higher stakes. Imagine renovating a kitchen while you're still cooking dinner in it. You can't install the new stove until you disconnect the old one, but you need the old one to finish cooking. I had to carefully sequence which milestones I swapped in, making sure that a milestone expecting new configuration formats wasn't run against the codebase until those configurations were actually updated. Get the ordering wrong and you'd get a run where the pipeline was essentially arguing with a past version of itself.
+
+The most practical lesson was about the difference between building a system and inhabiting one. When I was running v1 against v2, the separation was clean. When I started running in-progress v2 against itself, I was living inside the system I was building. Every improvement I made changed the conditions of the next improvement. It was like swapping the engine on a car while driving it down the highway: possible if you're methodical, catastrophic if you get the sequence wrong.
+
+## I'm Still The Architect, And That Matters
+
+I want to address something directly, because I know a lot of the people reading this are engineers, and a lot of those engineers are anxious about what systems like this mean for their careers.
+
+Tekhton can implement milestones. It can split work, recover from failures, and run autonomously for hours. It is, in a meaningful sense, an entire dev shop in a box. But it has never once come up with a milestone on its own. It has never said "you know what this system needs?" It has never questioned the architecture, proposed a pivot, or told me I was building the wrong thing.
+
+Every milestone in v2 came from me. Every architectural decision, every feature priority, every "this is what we're building next and here's why" was human judgment. I'm the senior architect. I'm the CTO. The pipeline is my engineering department, and it's a department I'm proud of, one that can execute with remarkable autonomy, but it's executing a vision that I provide.
+
+If you're an engineer reading this and worrying about where you fit in a world of agentic pipelines, here's what I'd tell you:
+
+> The system doesn't replace the person who knows what to build and why. It replaces the mechanical labor of building it.
+
+That's a significant change, and I don't want to minimize it. But the skills that matter most, system design, problem decomposition, judgment about tradeoffs, understanding what users actually need, those aren't just safe. They're more valuable than ever, because now you can act on them at a scale that wasn't possible before.
+
+Think of it like the shift from hand-drafting to CAD. Drafters who could only trace lines lost their jobs. Architects who understood why the building needed to be shaped a certain way gained a superpower. The tool didn't replace the thinking, it replaced the transcription.
+
+I still maintain purpose, I still maintain value, and so do you if you're the kind of person who thinks about *why* before you think about *how*.
+
+## What I Think About The Agent Pipeline Space Now
+
+After building both v1 and v2, I have stronger opinions than I did six days ago, and some of them are different from what I expected.
+
+**The orchestration layer is the product.** I keep hearing people talk about agent capabilities as if the model is the bottleneck. In my experience, the model is rarely the bottleneck. The bottleneck is everything around the model: how you assemble context, how you detect failure, how you recover, how you track state, how you validate output, how you prevent the system from silently drifting while producing plausible-looking results. The smarter the model gets, the more that surrounding machinery matters, because a smarter model with bad orchestration just produces more convincing failures. A Ferrari engine in a go-kart chassis is still a go-kart.
+
+**Security is not optional and it's not a later problem.** If your system reads project files, injects them into prompts, and executes commands based on agent output, you have an attack surface. The fact that most agent systems are running in trusted environments today doesn't mean the security model can be "trust everything." I'm genuinely glad I did the security pass before adding autonomy features, because every autonomous feature I added after that point benefited from the hardened foundation.
+
+**Self-improvement is real but bounded.** Tekhton can build parts of itself, and that's genuinely useful. But it can't evaluate whether what it built is actually the right thing to build. It can implement a milestone, but it can't tell me whether the milestone should exist. The judgment about what to build next, and whether the system's priorities are correct, is still irreducibly human. The system is a brilliant executor with no opinions, and that boundary is more important than most people in this space acknowledge. Frankly, it should be reassuring.
+
+**The biggest cost is not tokens, it's wasted context.** Before I added context accounting, I was spending tokens like a tourist at a souvenir shop, grabbing everything that might be relevant and stuffing it into the prompt. Once I could see the actual context economics, the waste was jarring. v3's indexing work is entirely motivated by this realization: if the pipeline can inject a ranked, token-budgeted repo map instead of dumping entire architecture files into every prompt, the cost per run drops dramatically.
+
+## Where v3 Goes
+
+v3 is about intelligent indexing. Instead of injecting whole files into agent prompts, the pipeline will use tree-sitter to parse the codebase, build a file-relationship graph, rank files by PageRank relevance to the current task, and emit a token-budgeted repo map containing only function and class signatures. In practical terms, the agents will get a smart summary of the codebase that says "here's what exists, here's where it lives, and here's what's most relevant to what you're doing right now" instead of having to read through every file to find what they need.
+
+Optionally, Serena as an MCP server will provide live LSP-powered symbol resolution so agents can query exact definitions and find all callers of a function without grep.
+
+Beyond indexing, the v3 roadmap includes the dedicated security agent and tech debt worker I mentioned earlier, concurrency support with milestone DAG execution, semaphore locks for coordinating parallel teams, git worktrees for isolation, and continued advancement of the brownfield intelligence work that v2 started. I already have an extensive and growing collection of milestones mapped out. I'll share that roadmap in a future post.
+
+But that's future work. For now, v2 is the version I'm proud of, not because it's complete but because it proved something I wasn't sure about when I started: that a pipeline built on ordinary engineering principles, shell scripts, clear control flow, mechanical validation, and explicit state management, can become genuinely adaptive without becoming unpredictable.
+
+> The system got smarter. The engineering stayed boring. I think that's the right combination.
+
+The repo is at [github.com/GeoffGodwin/tekhton](https://github.com/GeoffGodwin/tekhton). The v2 milestone archive has the full history of what was built and in what order. If you read the archive from top to bottom, you're watching a system learn to build itself, one milestone at a time.
+
+<RepoCard
+  owner="GeoffGodwin"
+  repo="tekhton"
+  description="One intent. Many hands."
+  language="Shell"
+/>
