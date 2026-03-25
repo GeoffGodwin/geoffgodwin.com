@@ -12,6 +12,7 @@ audioUrl: "https://audio.geoffgodwin.com/the-ambiguity-frontier_final.mp3"
 ---
 
 import RepoCard from "@/components/RepoCard.astro";
+import QuoteCard from "@/components/QuoteCard.astro";
 
 There's a particular kind of anxiety spreading through senior engineering teams right now, one that doesn't announce itself loudly so much as show up in the way experienced architects go quiet during AI discussions, or pivot a little too quickly toward risk framing. It's the fear of a specific kind of obsolescence: not being outpaced by a machine, but being outpaced by a *junior developer holding one*.
 
@@ -48,7 +49,10 @@ The architect, the person who carries the system in their head and reasons acros
 
 I ran into a clean illustration of this while building Tekhton, an agentic pipeline project I've been developing as both a practical tool and a portfolio artifact. Watching the pipeline work through successive changes to a codebase, I noticed that the broader the change, the more the outputs drifted from the original architectural intent, in the same way a large human-authored refactor can quietly violate assumptions that were never written down anywhere. No prompt had asked me to look for that pattern; I accumulated observations across multiple runs, connected them to something I recognized from years of watching human teams work, and introduced a mechanism for tracking architectural drift as changes occurred. That insight didn't come from the pipeline. It came from someone who had seen the problem before in a different form and recognized its shape when it appeared in a new one.
 
-> *"AI doesn't change what a great architect is. It just makes it harder to fake being one."*
+<QuoteCard
+  quote="AI doesn't change what a great architect is. It just makes it harder to fake being one."
+  emphasis="harder to fake"
+/>
 
 That last point is the uncomfortable one. Not every senior title reflects senior thinking, and for those running on tenure rather than judgment, the threat is real. For the rest, your natural habitat just became the most valuable real estate in the field.
 
@@ -72,7 +76,10 @@ No model, however capable, can infer an intent the human hasn't yet had. It can 
 
 A concrete version of this shows up in UX work, where I've repeatedly had the experience of looking at a screen that was technically correct, meeting every specified requirement, and knowing immediately that something was wrong before being able to say what. The information hierarchy felt off, or the navigation pulled attention in the wrong direction, or the real estate allocation communicated the wrong priorities to the user. The ambiguity wasn't in the spec, because no spec had captured the feeling of moving through the interface as a person rather than as a process. Resolving it required experiencing it first, sitting with the discomfort of something being not quite right, and then doing the work of translating that felt sense into precise, actionable changes. That's a loop that begins in a place no prompt can reach.
 
-> *"The greater the ambiguity, the easier to specify. The more subtle the ambiguity, the greater the challenge and skill necessary."*
+<QuoteCard
+  quote="The greater the ambiguity, the easier to specify. The more subtle the ambiguity, the greater the challenge and skill necessary."
+  emphasis="greater the challenge and skill"
+/>
 
 This is the asymptote that matters. As AI gets better at handling rough input, the value of truly precise thinking doesn't decrease, it concentrates, because the floor rises for everyone while the ceiling on clear articulation stays where it always was, having never been about tools in the first place.
 
