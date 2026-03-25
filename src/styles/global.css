@@ -25,11 +25,17 @@ html[data-theme="dark"] {
   --accent: #047857;
   --border: #059669;
   --muted: #d1fae5;
+  --color-accent: #047857;
+  --color-border: #059669;
+  --color-muted: #d1fae5;
 }
 :is(html[data-theme="dark"]) [data-post-type="paper"] {
   --accent: #34d399;
   --border: #10b981;
   --muted: #052e16;
+  --color-accent: #34d399;
+  --color-border: #10b981;
+  --color-muted: #052e16;
 }
 
 @theme inline {
