@@ -526,7 +526,8 @@ const yearGroups = Object.entries(
     isolation: isolate;
   }
 
-  .post-card:hover {
+  .post-card:hover,
+  .post-card:focus-visible {
     transform: translateY(-2px);
     border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
     box-shadow:
@@ -599,7 +600,8 @@ const yearGroups = Object.entries(
     z-index: 3;
   }
 
-  .post-card:hover .post-dot {
+  .post-card:hover .post-dot,
+  .post-card:focus-visible .post-dot {
     background: var(--color-accent);
     border-color: var(--color-accent);
     box-shadow: 0 0 10px
@@ -629,7 +631,8 @@ const yearGroups = Object.entries(
     padding-top: 0.15rem;
   }
 
-  .post-card:hover .post-day {
+  .post-card:hover .post-day,
+  .post-card:focus-visible .post-day {
     opacity: 0.8;
     text-shadow: 0 0 15px
       color-mix(in srgb, var(--color-accent) 40%, transparent);
@@ -650,7 +653,8 @@ const yearGroups = Object.entries(
       text-shadow 0.3s ease;
   }
 
-  .post-card:hover .post-title {
+  .post-card:hover .post-title,
+  .post-card:focus-visible .post-title {
     color: var(--color-accent);
     text-shadow: 0 0 20px
       color-mix(in srgb, var(--color-accent) 20%, transparent);

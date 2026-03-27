@@ -33,6 +33,7 @@ const {
   tags,
   hideEditPost,
   audioUrl,
+  spotifyUrl,
   postType,
 } = post.data;
 
@@ -204,9 +205,39 @@ const nextPost =
       </div>
     </header>
 
-    {audioUrl && (
+    {(audioUrl || spotifyUrl) && (
       <div class="mx-auto mt-6 mb-2 max-w-2xl">
-        <PostAudio src={audioUrl} title={title} />
+        {/* Listen options bar */}
+        <div class="listen-options">
+          <span class="listen-options-label">
+            <svg class="listen-options-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+              <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+            </svg>
+            Listen to this article
+          </span>
+          {spotifyUrl && (
+            <a
+              href={spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="listen-spotify-btn"
+            >
+              <svg class="listen-spotify-logo" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"></path>
+              </svg>
+              Listen on Spotify
+              <svg class="listen-external-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </a>
+          )}
+        </div>
+        {audioUrl && (
+          <PostAudio src={audioUrl} title={title} />
+        )}
       </div>
     )}
 
@@ -558,5 +589,82 @@ const nextPost =
     .post-nav-bg {
       will-change: opacity;
     }
+  }
+
+  /* ═══════ Listen options bar ═══════ */
+  .listen-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0;
+    font-family: var(--font-cartograph, monospace);
+    font-size: 0.75rem;
+  }
+
+  .listen-options-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    opacity: 0.5;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  .listen-options-icon {
+    width: 0.9rem;
+    height: 0.9rem;
+    color: var(--accent);
+    opacity: 0.7;
+  }
+
+  .listen-spotify-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid #1db95430;
+    background: #1db95410;
+    color: #1db954;
+    font-family: var(--font-cartograph, monospace);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  }
+
+  .listen-spotify-btn:hover {
+    background: #1db95420;
+    border-color: #1db95460;
+    box-shadow: 0 0 12px -3px #1db95425;
+    transform: translateY(-1px);
+  }
+
+  .listen-spotify-btn:focus-visible {
+    outline: 2px dashed #1db954;
+    outline-offset: 2px;
+  }
+
+  .listen-spotify-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .listen-spotify-logo {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .listen-external-icon {
+    width: 0.7rem;
+    height: 0.7rem;
+    opacity: 0.5;
+    flex-shrink: 0;
   }
 </style>
