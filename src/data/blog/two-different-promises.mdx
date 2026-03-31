@@ -1,0 +1,144 @@
+---
+title: "Two Different Promises: Why the AI That Helps You Write Emails Isn't the AI That Will Cure Cancer"
+description: "The AI productivity promise is real. The AI civilization promise — curing Alzheimer's, cracking fusion — is being made against a computational credit line that doesn't exist yet. Here's the engineering reality underneath the marketing."
+pubDatetime: 2026-03-31T10:00:00Z
+tags:
+  - artificial intelligence
+  - quantum computing
+  - engineering
+featured: false
+draft: false
+audioUrl: "https://audio.geoffgodwin.com/two-different-promises_final.mp3"
+spotifyUrl: "https://open.spotify.com/episode/6nVRq8Vn3aHTf2cGrGLj6m?si=c8f58616a40443ac"
+---
+
+import QuoteCard from "@/components/QuoteCard.astro";
+import XkcdCard from "@/components/XkcdCard.astro";
+
+A recent dinner conversation with my father on the proliferation of consumer AI led me to realize that there's a version of the AI conversation happening right now, both in public spaces and in private boardrooms, that I think is doing real harm. Not harm because it's lying exactly, but because it's conflating two very different promises under the same brand name and hoping nobody looks closely enough to notice the difference.
+
+The first promise is the one being kept: AI as a productivity layer, a tool that synthesizes information, fluently handles language, automates repetitive knowledge work, and makes a skilled person meaningfully more capable than they were without it. I use these tools daily, professionally and personally, and my honest assessment is that the productivity promise is real and the people dismissing it entirely are making a mistake.
+
+The second promise is the one I think deserves a lot more scrutiny: AI as a civilization-level solver, the thing that will cure Alzheimer's, crack fusion, model climate systems, and generally rescue humanity from its hardest and most intractable problems. This promise is also being made, loudly and to very large audiences of investors and policymakers, and my understanding of the underlying technology suggests that it's being made against a credit line that doesn't yet exist.
+
+So in response to all this I went on a fact finding mission to better understand the landscape and the technology, and this post is my best attempt to share what I found, in a way that doesn't require a computer science degree to follow, because I think this distinction matters to anyone paying attention to where the world is heading.
+
+---
+
+## First, a Quick Word About What Classical Computers Actually Are
+
+I find it helps to start here because most people who aren't in the industry have an intuitive sense of what a computer does without necessarily having a model for *how* it does it, and that model matters for what comes next.
+
+A classical computer is, at its core, a very elegant translation problem. Electricity flowing through a circuit is either present or it isn't, which gives you two states, and early computer scientists figured out how to build an entire language on top of that binary reality. High voltage means one, low voltage means zero, and from that absurdly simple foundation we constructed everything from spreadsheets to Spotify. Physical reality becomes math, math becomes instructions, instructions become software, software becomes the thing you're using to read this. The translation chain is understood end to end, at every layer of the stack. When your laptop crashes or freezes, it isn't because the hardware did something unpredictable, it's because somewhere in the enormous tower of software built on top of that hardware, a human made a mistake, two systems made incompatible assumptions, or some code encountered a situation nobody thought to plan for. The machine itself did exactly what it was told, and that degree of determinism, that absolute reliability of the physical foundation underneath all the software chaos, is what makes classical computing so powerful in the first place.
+
+It's that last crucial point that I want you to hold onto as we go further.
+
+<XkcdCard num={676} />
+
+---
+
+## What an LLM Actually Is, in the Same Plain Terms
+
+A large language model, the technology underlying ChatGPT, Claude, and their peers, is a classical computer running an extraordinarily sophisticated pattern recognition and prediction system trained on an enormous corpus of human-generated text.
+
+It reasons about language, and because language is how humans encode knowledge about the world, it appears to reason about the world. That appearance is useful, it's impressive, and I want to be clear that I'm not dismissing it. But there's a distinction hiding in that description that becomes critical when you start asking what AI can and cannot do.
+
+An LLM is modeling the human *description* of physical reality, not physical reality itself. It has read everything we've written about protein folding, but it's never folded a protein. It has processed an enormous amount of text about nuclear fusion, but it's never modeled a plasma. For the productivity promise, this distinction doesn't matter much, helping you write a clearer email or summarize a long document doesn't require modeling reality from first principles. For the civilization promise, it's the entire ballgame.
+
+The map, as they say, is not the territory. And the problems worth solving at civilization scale require working with the territory directly.
+
+---
+
+## A Different Kind of Machine Entirely
+
+This is where quantum computing enters the picture, and I want to be upfront that this is also where most explanations either lose people in physics or oversimplify to the point of being misleading. I'm going to try my best here to do neither.
+
+A classical computer processes information as bits, each one a zero or a one, a switch that is either off or on. The entire edifice of modern computing is built on the reliability of that switch. A quantum computer operates on a fundamentally different physical phenomenon, one that exists at the subatomic level, where particles don't behave the way objects in our everyday experience do.
+
+Rather than a switch that is definitely off or definitely on, a quantum bit, called a qubit, exists in what physicists call superposition, which is one of those words that gets thrown around a lot without adequate explanation. The honest version isn't that the qubit is "both zero and one at the same time," which is how it usually gets described, and which I'd argue creates more confusion than clarity. To understand what superposition actually means, consider something more familiar: the height of every student in a large university gymnasium.
+
+If you measured every person in that room, you wouldn't get a random scatter of values. You'd get a distribution, a shape, with most people clustered around an average height in the middle, fewer people at the extremes, and the whole thing forming that familiar bell curve. Before you measure any individual student, you can't say with certainty how tall they are, but you can say a great deal about the *probability* of what you'll find. That probability landscape is real, it has a shape, and it encodes meaningful information even before a single measurement is taken.
+
+<XkcdCard num={1240} />
+
+A qubit in superposition is something like this. It doesn't have a definite value of zero or one the way a classical bit does, but it does have a real, physical probability distribution over those two outcomes, and that distribution has a shape that can be mathematically manipulated. You can make zero more likely, or one more likely, or keep them balanced, and crucially, you can combine the distributions of multiple qubits in ways that encode relationships between them. The quantum state of the system IS that probability landscape, not a hidden definite value waiting to be uncovered, but a real physical property of the qubit that exists and can be worked with right up until the moment you measure it, at which point it resolves into a classical zero or one the way measuring a student resolves their height into a single number.
+
+The reason this distinction matters, and why the cat-is-both-alive-and-dead explanation does real damage to people's intuition, is that it makes superposition sound like a parlor trick, a weird storage hack where you cram two answers into one box. The probability distribution framing reveals what's actually interesting about it: you're not storing two answers, you're working directly with the mathematical structure of possibility itself. When you entangle multiple qubits together, their probability distributions become linked in ways that have no equivalent in classical computing, and the resulting system can encode and process relationships between an almost incomprehensibly large number of possible states simultaneously.
+
+The reason this matters for problems like drug discovery or climate modeling is that those problems involve modeling physical reality at a level of complexity that classical computers hit a hard ceiling on, not because the software isn't good enough, but because the physics of binary silicon simply can't get there within any reasonable time or energy budget. Quantum computing is theoretically the unlock for that ceiling, and I want to emphasize "theoretically" because it's doing a lot of work in that sentence.
+
+
+
+---
+
+## The Person in the Room With the Number Tag
+
+Here's the mental model I find most useful for understanding what a quantum computer is actually doing, and why verification is so much harder than it sounds.
+
+Imagine you need to find a specific person in a room containing more people than have ever existed in human history. The person you're looking for has a tag with the number "626" on it, but the tag is facing away from you, nobody is making a sound, and you have no description of what anyone looks like.
+
+A classical computer walks up to each person individually, taps them on the shoulder, and asks them to turn around so you can check their tag. For small rooms this is tedious but workable. For a room this size, you'd be tapping shoulders until long after the sun burns out.
+
+A quantum computer does something categorically different. Rather than approaching people one at a time, it generates a wave, a precisely tuned resonance, that propagates through the entire room simultaneously. If you've done your job correctly, the frequency of that wave corresponds exactly to "626" in a language only that person's tag responds to, and only she turns around. Everyone else stands perfectly still. Think of it less like trying to hear someone shouting across a loud bar, and more like a wine glass resonating with a specific frequency while every other glass in the room sits completely still.
+
+The challenge, and it's the challenge that defines the entire current state of quantum computing, is figuring out what frequency makes only 626 turn around, without being able to ask her, without being able to see her tag, and in a room where the acoustics themselves are imperfect and introduce distortion you have to account for before you even start.
+
+And it only gets worse from there. When someone turns around and shows you their tag, you can confirm the number is readable, but in a room this large you have no way of knowing whether someone else in the far corner also responded faintly to your frequency, or whether the person who turned around most decisively is truly the one you needed and not just the one most sensitive to your particular wave. For problems where you already know what you're looking for, 626 is a password you can verify against a known answer, you can confirm immediately that you got the right person. But for problems where the answer itself is what you're trying to discover, the shortest route connecting 200 cities, the protein configuration that binds to a specific receptor, the net-positive configuration for a fusion reaction, you're trusting that the person who turned around is the right one, because the only alternative is to tap every shoulder in the room yourself, which is precisely what you built this machine to avoid.
+
+The only way you know you got the frequency right is that she turned around. And for the hardest problems, that's a very fragile kind of confidence to build a civilization-scale promise on.
+
+---
+
+## So Where Does AI Fit Into This?
+
+This is the part of the conversation I don't hear nearly often enough, and it's the part that I think most directly addresses the gap between the two promises I described at the start.
+
+Because we don't yet have quantum computers reliable enough to run fixed, deterministic algorithms at useful scale, researchers are currently using classical AI systems to help design and optimize the quantum circuits themselves. The AI iteratively adjusts the parameters of a quantum computation, runs it, scores the output against some objective, and tries again, essentially tweaking the frequency of the wave we talked about, running the experiment many times, and trusting that the answer appearing most often across those runs is the right one. This is real, it produces useful results in narrow research domains, and it's clever as an interim approach.
+
+But I want you to notice what's happening there, because I think it's the most important thing I can say in this post. We are using a system whose outputs we can't always fully verify, to help us tune a machine whose outputs we can't always fully verify, and the combination of those two systems is what's being positioned to investors as the solver of civilization's hardest problems. Each of those technologies is impressive individually and worth taking seriously on its own terms. The claim that their current combination is close to delivering on the civilization promise is, in my honest assessment, not supported by the engineering reality underneath it.
+
+<QuoteCard
+  quote="We are using a system whose outputs we can't always fully verify, to help us tune a machine whose outputs we can't always fully verify, and the combination of those two systems is what's being positioned to investors as the solver of civilization's hardest problems."
+  emphasis="the combination of those two systems"
+  attribution="On the verification gap"
+/>
+
+---
+
+## What "Not Ready Yet" Actually Looks Like
+
+I want to be fair here, because I'm not arguing that quantum computing is a dead end or that the long-term vision is wrong. I believe the physics are real, I believe the potential is there, and I think the researchers working in this space are doing some of the most interesting science happening anywhere right now.
+
+What I'm arguing is that we have strong evidence the physics work, meaningful evidence that the approach functions at small scale under carefully controlled conditions, and essentially no evidence yet that it scales to the size and reliability required to serve as the foundation for AI solving problems that classical computing genuinely cannot. Those are three very different claims, and my understanding is that the people raising billions of dollars on the strength of the civilization promise are frequently treating them as one.
+
+It's worth remembering that this pattern has precedent in the history of science and engineering. Serious, well-funded researchers spent decades trying to build flying machines by scaling up the thing that already worked: flapping wings, modeled on birds. The physics of avian flight are real, the observations were accurate, and some of those machines got impressively far. But the approach that works for a sparrow runs into hard physical limits at the scale of something carrying a person, and no amount of better engineering of the same basic idea was going to close that gap. The Wright brothers didn't build a better ornithopter. They stepped back, asked a different question, and the answer turned out to be fixed wings and control surfaces, adjacent to the original idea, informed by everything learned along the way, but a category shift rather than an incremental improvement.
+
+My understanding is that we may be somewhere similar with quantum computing right now: genuinely productive, learning real things, and not yet certain whether the current approach scales to the finish line or whether the finish line requires a step back first. That uncertainty isn't a reason to dismiss the field, it's a reason to be precise about what's actually been demonstrated versus what's being promised.
+
+To put it in concrete terms: the most advanced quantum computers today operate at temperatures close to absolute zero, colder than deep space, inside elaborate electromagnetic shielding. The researcher's interface to this machine is a cloud portal not entirely unlike submitting a job to AWS. The output that comes back isn't a deterministic answer the way a classical program would return one; it's a histogram, a statistical distribution of results across many repeated runs, and the researcher's job is to determine whether the signal in that distribution is strong enough to trust. That's the state of the art in 2026, and it's worth holding that picture in mind the next time someone tells you this infrastructure is about to cure cancer.
+
+The researchers I find most credible in this space are notably more measured in their public statements than the investment community tends to be. There's a reason for that, and I think it's worth paying attention to.
+
+---
+
+## A Useful Question to Carry With You
+
+If I can leave you with one practical thing from all of this, it's a single question you can ask the next time someone tells you that AI is going to solve a civilization-scale problem on a near-term timeline: what computational substrate are they planning to run that on?
+
+If the answer is classical computing, the follow-up question is whether the problem is actually in a class that classical computing can handle at the required scale, and for the hardest problems in biology, chemistry, and physics, my understanding is that the honest answer is no.
+
+If the answer is quantum computing, the follow-up question is whether they're aware of where quantum computing actually is in its development right now, and whether their timeline accounts for the gap between "the physics are real" and "we have a reliable, scalable, programmable quantum computer."
+
+That question isn't a gotcha. It's a fair engineering question, and the answer will tell you fairly quickly whether you're listening to an engineering argument or a fundraising one. Both exist in the current conversation, they're not always easy to tell apart, and I think being able to distinguish between them is increasingly one of the more useful skills a technically literate person can develop right now.
+
+The AI that helps you write better emails is real and worth using. The AI that cures Alzheimer's is waiting for a piece of infrastructure that hasn't finished being built yet, and I think we'd all benefit from being clearer about which one we're talking about at any given moment.
+
+<QuoteCard
+  quote="The AI that helps you write better emails is real and worth using. The AI that cures Alzheimer's is waiting for a piece of infrastructure that hasn't finished being built yet."
+  emphasis="a piece of infrastructure that hasn't finished being built yet"
+  attribution="The bottom line"
+/>
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
