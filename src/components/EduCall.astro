@@ -1,0 +1,486 @@
+---
+interface Props {
+  /** The technical term to display inline (e.g. "LLM") */
+  term: string;
+  /** Plain-language ELI5 explanation shown in the tooltip */
+  eli5: string;
+  /** Wikipedia article slug (e.g. "Large_language_model") — URL-encoded automatically */
+  wikiSlug: string;
+}
+
+const { term, eli5, wikiSlug } = Astro.props;
+
+// Unique ID scoped to this instance — safe, server-side only
+const uid = `ec-${term.toLowerCase().replace(/[^a-z0-9]/g, "")}-${Math.random().toString(36).slice(2, 7)}`;
+const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(wikiSlug)}`;
+---
+
+<span class="ec-wrap">
+  <button
+    type="button"
+    class="ec-trigger"
+    popovertarget={uid}
+    data-ec-trigger
+    aria-label={`Explain: ${term}`}
+  >{term}</button>
+
+  <span id={uid} popover="auto" class="ec-popover">
+    <!-- Corner marks (matching site aesthetic) -->
+    <span class="ec-corner ec-tl" aria-hidden="true"></span>
+    <span class="ec-corner ec-tr" aria-hidden="true"></span>
+    <span class="ec-corner ec-bl" aria-hidden="true"></span>
+    <span class="ec-corner ec-br" aria-hidden="true"></span>
+
+    <span class="ec-inner">
+      <!-- Header -->
+      <span class="ec-header">
+        <svg
+          class="ec-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <!-- Graduation cap -->
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+        </svg>
+        <span class="ec-term">{term}</span>
+        <span class="ec-badge">ELI5</span>
+        <button
+          type="button"
+          class="ec-close"
+          popovertarget={uid}
+          popovertargetaction="hide"
+          aria-label={`Close explanation for ${term}`}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </span>
+
+      <!-- Body -->
+      <span class="ec-body">{eli5}</span>
+
+      <!-- Wikipedia link -->
+      <a
+        href={wikiUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="ec-link"
+      >
+        <svg
+          class="ec-wiki-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+        </svg>
+        Wikipedia: {term}
+        <svg
+          class="ec-arrow"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 8h10M9 4l4 4-4 4" />
+        </svg>
+      </a>
+    </span>
+  </span>
+</span>
+
+<style>
+  /* ── Inline trigger ──────────────────────────────── */
+
+  .ec-wrap {
+    display: inline;
+  }
+
+  .ec-trigger {
+    display: inline;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: help;
+    font: inherit;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: color-mix(in srgb, var(--accent) 65%, transparent);
+    text-underline-offset: 3px;
+    transition:
+      color 0.15s,
+      text-decoration-color 0.15s;
+  }
+
+  .ec-trigger:hover {
+    text-decoration-style: solid;
+    text-decoration-color: var(--accent);
+  }
+
+  .ec-trigger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+    text-decoration: none;
+  }
+
+  /* ── Popover shell ───────────────────────────────── */
+
+  /*
+   * Use position:absolute so the card scrolls naturally with the page
+   * and is offset from the document origin (scrollY included in JS).
+   * We override the UA popover centering defaults (inset + margin:auto).
+   */
+  .ec-popover {
+    inset: auto;
+    top: 0;
+    left: 0;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: visible;
+    max-width: none;
+    max-height: none;
+    width: fit-content;
+  }
+
+  /* ── Floating card ───────────────────────────────── */
+
+  .ec-inner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(28rem, calc(100vw - 1.5rem));
+    border-radius: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    background: color-mix(in srgb, var(--background) 94%, #000);
+    overflow: hidden;
+    padding: 0.875rem 1rem;
+    gap: 0.5rem;
+    box-shadow:
+      0 4px 24px color-mix(in srgb, var(--accent) 12%, transparent),
+      0 2px 10px rgba(0, 0, 0, 0.22);
+    font-family: var(--font-app, inherit);
+    animation: ec-in 0.14s ease-out;
+  }
+
+  @keyframes ec-in {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Corner accent marks */
+  .ec-corner {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    border-style: solid;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .ec-tl {
+    top: 6px;
+    left: 6px;
+    border-width: 1px 0 0 1px;
+    border-radius: 2px 0 0 0;
+  }
+  .ec-tr {
+    top: 6px;
+    right: 6px;
+    border-width: 1px 1px 0 0;
+    border-radius: 0 2px 0 0;
+  }
+  .ec-bl {
+    bottom: 6px;
+    left: 6px;
+    border-width: 0 0 1px 1px;
+    border-radius: 0 0 0 2px;
+  }
+  .ec-br {
+    bottom: 6px;
+    right: 6px;
+    border-width: 0 1px 1px 0;
+    border-radius: 0 0 2px 0;
+  }
+
+  /* ── Card header ─────────────────────────────────── */
+
+  .ec-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    /* span reset */
+    font: inherit;
+    color: inherit;
+  }
+
+  .ec-icon {
+    width: 1rem;
+    height: 1rem;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .ec-term {
+    flex: 1;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    line-height: 1.2;
+  }
+
+  .ec-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-radius: 999px;
+    padding: 0.1em 0.45em 0.15em;
+    line-height: 1.5;
+  }
+
+  /* ── Close button ────────────────────────────────── */
+
+  .ec-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    color: color-mix(in srgb, var(--foreground) 55%, transparent);
+    transition:
+      color 0.15s,
+      background 0.15s,
+      border-color 0.15s;
+  }
+
+  .ec-close svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    pointer-events: none;
+  }
+
+  .ec-close:hover {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--foreground) 8%, transparent);
+    border-color: color-mix(in srgb, var(--foreground) 18%, transparent);
+  }
+
+  .ec-close:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    color: var(--foreground);
+  }
+
+  /* ── Body ────────────────────────────────────────── */
+
+  .ec-body {
+    display: block;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--foreground);
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  /* ── Wikipedia link ──────────────────────────────── */
+
+  .ec-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: color-mix(in srgb, var(--accent) 85%, var(--foreground));
+    text-decoration: none;
+    padding-top: 0.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+    transition:
+      color 0.15s,
+      gap 0.15s;
+  }
+
+  .ec-link:hover {
+    color: var(--accent);
+    gap: 0.45rem;
+  }
+
+  .ec-wiki-icon {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+
+  .ec-link:hover .ec-wiki-icon {
+    opacity: 1;
+  }
+
+  .ec-arrow {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+</style>
+
+<script>
+  type ToggleEvent = Event & { newState: string };
+
+  const MARGIN = 12;
+  const HOVER_DELAY_MS = 450;
+  // Fallback card dimensions used in the first pass (before the popover is rendered)
+  const EST_CARD_W = 448; // ~28rem @ 16px — matches CSS max-width
+  const EST_CARD_H = 220;
+
+  /**
+   * Position the popover relative to the document (position:absolute).
+   * Coords = viewport coords from getBoundingClientRect + window.scrollY/scrollX.
+   * cardW / cardH allow a second corrective pass with real rendered dimensions.
+   */
+  function positionPopover(
+    trigger: HTMLButtonElement,
+    popover: HTMLElement,
+    cardW = EST_CARD_W,
+    cardH = EST_CARD_H
+  ): void {
+    const tr = trigger.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    // Default: below the trigger, left-aligned
+    let viewLeft = tr.left;
+    let viewTop  = tr.bottom + MARGIN;
+
+    // Clamp right edge within viewport
+    if (viewLeft + cardW > vw - MARGIN) {
+      viewLeft = vw - cardW - MARGIN;
+    }
+    // Clamp left edge
+    viewLeft = Math.max(MARGIN, viewLeft);
+
+    // Flip above the trigger if not enough room below but room above
+    if (viewTop + cardH > vh - MARGIN && tr.top - cardH - MARGIN >= MARGIN) {
+      viewTop = tr.top - cardH - MARGIN;
+    }
+    // Clamp top
+    viewTop = Math.max(MARGIN, viewTop);
+
+    // Convert viewport coords → document coords for position:absolute
+    popover.style.left = `${Math.round(viewLeft + scrollX)}px`;
+    popover.style.top  = `${Math.round(viewTop  + scrollY)}px`;
+  }
+
+  function initEduCall(trigger: HTMLButtonElement): void {
+    const popoverId = trigger.getAttribute("popovertarget");
+    if (!popoverId) return;
+    const popover = document.getElementById(popoverId);
+    if (!popover) return;
+
+    let hoverTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Pass 1: position with estimates before the browser paints (no flash)
+    popover.addEventListener("beforetoggle", (e: Event) => {
+      const te = e as ToggleEvent;
+      if (te.newState === "open") {
+        positionPopover(trigger, popover);
+      }
+    });
+
+    // Pass 2: correct with real dimensions after the card is rendered
+    popover.addEventListener("toggle", (e: Event) => {
+      const te = e as ToggleEvent;
+      if (te.newState === "open") {
+        requestAnimationFrame(() => {
+          const inner = popover.querySelector<HTMLElement>(".ec-inner");
+          if (inner) {
+            positionPopover(trigger, popover, inner.offsetWidth, inner.offsetHeight);
+          }
+        });
+      }
+    });
+
+    // Long-hover: show after HOVER_DELAY_MS of continuous hover
+    trigger.addEventListener("pointerenter", () => {
+      hoverTimer = setTimeout(() => {
+        if (!popover.matches(":popover-open")) {
+          popover.showPopover();
+        }
+      }, HOVER_DELAY_MS);
+    });
+
+    trigger.addEventListener("pointerleave", () => {
+      if (hoverTimer !== null) {
+        clearTimeout(hoverTimer);
+        hoverTimer = null;
+      }
+    });
+  }
+
+  // Close all open EduCall popovers on scroll or resize
+  function closeAll(): void {
+    document
+      .querySelectorAll<HTMLElement>(".ec-popover")
+      .forEach(p => {
+        if (p.matches(":popover-open")) p.hidePopover();
+      });
+  }
+
+  let scrollRaf: ReturnType<typeof requestAnimationFrame> | null = null;
+  window.addEventListener("scroll", () => {
+    if (scrollRaf !== null) return;
+    scrollRaf = requestAnimationFrame(() => {
+      closeAll();
+      scrollRaf = null;
+    });
+  }, { passive: true });
+
+  window.addEventListener("resize", closeAll, { passive: true });
+
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-ec-trigger]")
+    .forEach(initEduCall);
+</script>

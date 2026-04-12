@@ -60,6 +60,12 @@ export default defineConfig({
 
   fonts: [
     {
+      name: "Inter",
+      cssVariable: "--font-inter",
+      fallbacks: ["sans-serif"],
+      provider: fontProviders.google(),
+    },
+    {
       name: "Wotfard",
       cssVariable: "--font-wotfard",
       fallbacks: ["sans-serif"],

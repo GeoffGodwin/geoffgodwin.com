@@ -141,6 +141,7 @@ const isActive = (path: string) => {
 
             <li class="flex items-center">
               <button
+                id="nav-search-btn"
                 data-search-trigger
                 class="nav-search-btn"
                 title="Search (⌘K)"
@@ -148,7 +149,7 @@ const isActive = (path: string) => {
                 aria-keyshortcuts="Meta+K"
               >
                 <IconSearch class="size-4.5" />
-                <kbd class="nav-kbd">⌘K</kbd>
+                <kbd id="nav-search-kbd" class="nav-kbd">⌘K</kbd>
               </button>
             </li>
             {
@@ -454,23 +455,40 @@ const isActive = (path: string) => {
 
     if (!header || !navWrap || !borderLine) return;
 
+    // Hysteresis thresholds: enter scrolled state later than we leave it.
+    // The dead zone between LEAVE and ENTER prevents the scroll-anchor feedback
+    // loop where a mid-animation layout shift nudges scrollY back across the
+    // threshold and causes the header to oscillate / content to jitter.
+    const ENTER_THRESHOLD = 30;
+    const LEAVE_THRESHOLD = 8;
+    let isScrolled = window.scrollY > ENTER_THRESHOLD;
     let rafPending = false;
+
+    function applyScrolled(scrolled: boolean) {
+      isScrolled = scrolled;
+      header!.classList.toggle("header-scrolled", scrolled);
+      navWrap!.classList.toggle("sm:py-5", !scrolled);
+      navWrap!.classList.toggle("sm:py-3", scrolled);
+      borderLine!.classList.toggle("opacity-0", !scrolled);
+      borderLine!.classList.toggle("opacity-100", scrolled);
+    }
+
     const handleScroll = () => {
       if (rafPending) return;
       rafPending = true;
       requestAnimationFrame(() => {
-        const scrolled = window.scrollY > 15;
-        header.classList.toggle("header-scrolled", scrolled);
-        navWrap.classList.toggle("sm:py-5", !scrolled);
-        navWrap.classList.toggle("sm:py-3", scrolled);
-        borderLine.classList.toggle("opacity-0", !scrolled);
-        borderLine.classList.toggle("opacity-100", scrolled);
+        const sy = window.scrollY;
+        if (!isScrolled && sy > ENTER_THRESHOLD) {
+          applyScrolled(true);
+        } else if (isScrolled && sy < LEAVE_THRESHOLD) {
+          applyScrolled(false);
+        }
         rafPending = false;
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true, signal });
-    handleScroll(); // Init instantly
+    applyScrolled(isScrolled); // Init instantly
   }
 
   function setupMobileNav() {
