@@ -39,7 +39,7 @@ html[data-theme="dark"] {
 }
 
 @theme inline {
-  --font-app: var(--font-wotfard);
+  --font-app: var(--font-inter);
   --font-sriracha: var(--font-sriracha);
   --font-cartograph: var(--font-cartograph);
   --color-background: var(--background);
@@ -67,6 +67,7 @@ i {
     scrollbar-color: var(--color-muted) transparent;
   }
   html {
+    font-size: 112.5%; /* 18px base — one step up from browser default 16px */
     @apply overflow-y-scroll scroll-smooth;
   }
   body {
@@ -162,7 +163,7 @@ i {
 }
 
 .premium-search .pagefind-ui__result {
-  padding: 1.25rem;
+  padding: 1.25rem !important;
   border: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
   border-radius: 1rem;
   background: color-mix(in srgb, var(--foreground) 2%, var(--background));

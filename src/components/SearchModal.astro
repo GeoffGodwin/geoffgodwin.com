@@ -20,14 +20,7 @@ import "@pagefind/default-ui/css/ui.css";
     </div>
     <!-- Cursor-follow glow -->
     <div class="modal-cursor-glow" data-modal-glow aria-hidden="true"></div>
-    <!-- Sparkles -->
-    <div class="modal-sparkles" aria-hidden="true">
-      <div class="sparkle sparkle-1"></div>
-      <div class="sparkle sparkle-2"></div>
-      <div class="sparkle sparkle-3"></div>
-      <div class="sparkle sparkle-4"></div>
-      <div class="sparkle sparkle-5"></div>
-    </div>
+
     <!-- Animated border glow -->
     <div class="modal-border-glow" aria-hidden="true"></div>
 
@@ -51,7 +44,7 @@ import "@pagefind/default-ui/css/ui.css";
         <span class="search-title-text">Search</span>
       </div>
       <div class="search-modal-shortcuts">
-        <kbd class="kbd-key">⌘</kbd>
+        <kbd class="kbd-key" id="search-modifier-key">⌘</kbd>
         <kbd class="kbd-key">K</kbd>
         <span class="shortcuts-sep">·</span>
         <kbd class="kbd-key">esc</kbd>
@@ -311,6 +304,16 @@ import "@pagefind/default-ui/css/ui.css";
       { signal }
     );
 
+    // Update modifier key display based on OS
+    const isMac = /Mac|iPhone|iPod|iPad/.test(navigator.userAgent);
+    const modifier = isMac ? "\u2318" : "Ctrl";
+    const modifierKeyEl = document.getElementById("search-modifier-key");
+    if (modifierKeyEl) modifierKeyEl.textContent = modifier;
+    const navKbd = document.getElementById("nav-search-kbd");
+    if (navKbd) navKbd.textContent = modifier + "K";
+    const navBtn = document.getElementById("nav-search-btn");
+    if (navBtn) navBtn.title = `Search (${modifier}K)`;
+
     document.querySelectorAll("[data-search-trigger]").forEach(el => {
       el.addEventListener(
         "click",
@@ -496,65 +499,6 @@ import "@pagefind/default-ui/css/ui.css";
     );
     will-change: transform;
     z-index: 0;
-  }
-
-  /* ===== Sparkles ===== */
-  .modal-sparkles {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-    border-radius: inherit;
-  }
-
-  .sparkle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 6px 1px color-mix(in srgb, var(--accent) 50%, transparent);
-    opacity: 0;
-    animation: sparkle-pulse 3s ease-in-out infinite;
-  }
-
-  .sparkle-1 {
-    top: 12%;
-    left: 8%;
-    animation-delay: 0s;
-  }
-  .sparkle-2 {
-    top: 25%;
-    right: 12%;
-    animation-delay: 0.6s;
-  }
-  .sparkle-3 {
-    bottom: 30%;
-    left: 20%;
-    animation-delay: 1.2s;
-  }
-  .sparkle-4 {
-    top: 8%;
-    right: 25%;
-    animation-delay: 1.8s;
-  }
-  .sparkle-5 {
-    bottom: 15%;
-    right: 8%;
-    animation-delay: 2.4s;
-  }
-
-  @keyframes sparkle-pulse {
-    0%,
-    100% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1);
-    }
   }
 
   /* ===== Animated border glow ===== */
