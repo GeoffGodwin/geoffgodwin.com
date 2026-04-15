@@ -18,7 +18,7 @@ draft: false
 
 ---
 
-> **TL;DR:** MCP proved that AI agents need standardized capability discovery. But for HTTP-callable APIs, which represent a huge slice of the integration landscape, the full weight of a runtime protocol isn't necessary. This post proposes a static JSON manifest served at `/.well-known/ai-capabilities` that handles discovery, semantic intent, error contracts, auth scoping, and policy declaration without requiring an MCP server. Invocation normalization stays where it belongs: in a shared client library. The manifest is a build artifact, not a running process, and it describes exactly what HTTP APIs need to express without carrying protocol surface area designed for use cases they don't have.
+> Updated April 15, 2026: Since this post was published, a protocol called UTCP (Universal Tool Calling Protocol) has emerged that converges on a similar philosophy, specifically direct-to-API tool calling via a JSON manifest rather than a wrapper server. If you're coming to this post having already encountered UTCP, I believe the convergence is still genuine and worth acknowledging. Where I think the proposals diverge meaningfully is in the depth of the discovery and intent layer: the structured intent block describing when and when not to call a tool, the declarative error semantics, the policy declarations, and the /.well-known/ anchoring under RFC 8615 are concerns this proposal addresses that UTCP's current specification doesn't appear to have gone as deep on. I arrived at this independently from first principles, which I'd like to think is a reasonable signal that the design direction is right, even if the specific artifact isn't the one that ultimately gets adopted.
 
 ---
 
