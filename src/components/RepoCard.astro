@@ -5,6 +5,8 @@ interface Props {
   description: string;
   language?: string;
   languageColor?: string;
+  /** Optional image or SVG URL shown at the left edge of the card */
+  img?: string;
 }
 
 const {
@@ -13,6 +15,7 @@ const {
   description,
   language = "Shell",
   languageColor = "#89e051",
+  img,
 } = Astro.props;
 
 const href = `https://github.com/${owner}/${repo}`;
@@ -22,9 +25,14 @@ const href = `https://github.com/${owner}/${repo}`;
   href={href}
   target="_blank"
   rel="noopener noreferrer"
-  class="repo-card not-prose group"
+  class:list={["repo-card not-prose group", { "has-img": !!img }]}
   aria-label={`View ${owner}/${repo} on GitHub`}
 >
+  {img && (
+    <div class="repo-img-col">
+      <img src={img} alt="" class="repo-img" loading="lazy" />
+    </div>
+  )}
   <div class="repo-card-inner">
     <!-- Header row -->
     <div class="repo-card-header">
@@ -81,6 +89,12 @@ const href = `https://github.com/${owner}/${repo}`;
       border-color 0.2s,
       box-shadow 0.2s,
       transform 0.15s;
+    overflow: hidden;
+  }
+
+  .repo-card.has-img {
+    display: flex;
+    flex-direction: row;
   }
 
   .repo-card:hover {
@@ -89,11 +103,43 @@ const href = `https://github.com/${owner}/${repo}`;
     transform: translateY(-1px);
   }
 
+  /* Image column */
+  .repo-img-col {
+    flex-shrink: 0;
+    width: 7.5rem;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .repo-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.75rem 1rem;
+  }
+
   .repo-card-inner {
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.625rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Stack vertically on very narrow viewports */
+  @media (max-width: 28rem) {
+    .repo-card.has-img {
+      flex-direction: column;
+    }
+
+    .repo-img-col {
+      width: 100%;
+      height: 4rem;
+    }
   }
 
   .repo-card-header {

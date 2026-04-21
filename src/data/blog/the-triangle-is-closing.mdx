@@ -1,0 +1,179 @@
+---
+title: "The Triangle Is Closing: Are You Scooting or Being Pushed?"
+description: "What happens to designers, product owners, and engineers when AI sits at the center of the production process, and what scooting toward each other actually looks like in practice."
+pubDatetime: 2026-04-19T10:00:00Z
+tags:
+  - artificial intelligence
+  - agentic systems
+  - engineering
+featured: false
+draft: false
+audioUrl: "https://audio.geoffgodwin.com/the-triangle-is-closing_final.mp3"
+spotifyUrl: ""
+---
+
+import QuoteCard from "@/components/QuoteCard.astro";
+import EduCall from "@/components/EduCall.astro";
+import RepoCard from "@/components/RepoCard.astro";
+
+There's a spatial metaphor baked into how most product teams work, and it's so embedded in how we organize ourselves that I wanted to examine it more directly. The designer sits at one corner, the product owner at another, the engineer at the third. Between them is the shared space where the product actually gets made: through handoffs, reviews, specifications, and the occasional heated alignment meeting. Each corner has its own language, its own tools, its own implicit contract about what "done" means, and the distance between them, while sometimes frustrating, was historically a feature of the model rather than a defect in it.
+
+That distance existed because up until only recently the work was always specialized. A designer who also tried to own the engineering meant one of those things was getting less attention than it deserved, and the same logic applied in both directions. The triangle wasn't about ego or territory; it was about depth. You got better output when each corner owned its domain fully, and the cost of the translation work between corners was simply the price of that depth. It's also why I've always preferred looking for <EduCall term="T-Shaped talent" eli5="T-Shaped talent refers to people who have broad familiarity across many disciplines (the horizontal bar of the T) but deep expertise in one or two specific areas (the vertical stroke). The concept originated in design consulting and has since become a common shorthand in product and engineering hiring conversations." wikiSlug="T-shaped_skills" /> when making hiring decisions, because I don't often need a jack of all trades or a singular master of one as much as I need someone with a decent amount of surface breadth and some specialized depth in one or two columns.
+
+AI hasn't eliminated that logic. But it has moved the center of gravity in ways that I don't think most teams have fully reckoned with yet, and the teams that figure it out first are going to have a structural advantage that won't be easy for the laggards to close. The triangle isn't disappearing, because the three corners still exist and the depth they represent still matters. But they're being pulled inward, toward each other and toward the center, whether the people at those corners are moving deliberately or not.
+
+I consider this post to be my attempt to map what that movement actually looks like, corner by corner, and to point toward what the center might look like when more people start arriving there.
+
+---
+
+## The Triangle and Why It Worked
+
+It's worth spending a moment on why the three-corner model made sense for so long, because the AI conversation often has a tendency to frame the old model as a relic before adequately explaining what it was optimized for. The triangle wasn't designed by any one person or group; it emerged from the real constraints of production work to naturally fit the problem.
+
+A product owner's job is fundamentally about knowing what to build and why to build it. That requires a particular set of inputs: customer context, business strategy, market signal, and competing priority demands. A good product owner spends significant time translating messy human problems into scoped, buildable requirements, and they do that work with enough fidelity that the people building the thing can make reasonable decisions when they encounter the inevitable ambiguities that no specification survives contact with. That job rewards breadth of organizational awareness and an ability to hold a lot of competing context simultaneously.
+
+A designer's job is about knowing how the thing should feel and how a person should move through it. That requires visual reasoning, interaction pattern knowledge, user empathy, and an understanding of what humans will find intuitive versus what they'll find confusing, even when the humans themselves wouldn't be able to articulate the difference. A good designer makes a hundred micro-decisions per artifact that the people using the final product will never consciously notice but would absolutely notice if they went wrong. That job rewards depth of perceptual sensitivity and craft knowledge that takes years to accumulate.
+
+An engineer's job is about knowing whether and how a thing can be built, and then building it correctly. That requires technical breadth, domain knowledge, awareness of the system's existing constraints, and the kind of probabilistic thinking about edge cases and failure modes that only comes from having watched things break. A good engineer translates intent into durable, maintainable reality, and when the specification is vague, they use judgment accumulated from experience to fill the gaps rather than guessing. They also usually have to develop inside large incumbent platforms and systems, without the benefit of just starting from scratch and working in a vacuum on a problem. That job rewards depth of technical knowledge and pattern recognition about what causes systems to fail over time.
+
+The handoffs between these corners were expensive, but they were the mechanism by which each role's specialized judgment got applied to the problem in sequence. The designer's intuition about user experience informed the product owner's priorities. The engineer's knowledge of technical constraints shaped what the designer considered feasible. The product owner's understanding of business context told the engineer which shortcuts were acceptable and which weren't. The translation work was slow, but it was all in the interest of a high-quality end product that didn't crumble when released into the world.
+
+So that's the model and I still think it's a good one. However, it's now under pressure from a direction none of the three corners were originally formed to accommodate.
+
+---
+
+## What AI Did to Each Corner
+
+The mistake most teams are making right now is treating AI adoption as a single organizational event rather than three distinct events happening simultaneously at three different corners, each one applying different pressure in different directions. The adjustments required at each corner are not the same adjustments, and understanding what's actually changing for each role is the prerequisite to understanding why they need to move toward each other.
+
+### The Engineer's Corner
+
+The most visible change is happening at the engineering corner, partly because engineers are often the ones writing about what's changing and partly because the change is most legible in the output: code is being written faster, with more of it generated by AI systems than by human hands directly.
+
+But the more interesting change is less about quantity and more about where engineering judgment is being applied. The engineer used to sit downstream of the design and product process, receiving specifications and translating them into implementation. The AI-assisted workflow doesn't eliminate that position, but it does move the hardest thinking upstream. Writing a prompt that reliably produces correct, architecturally coherent code across a complex system is a materially different skill than writing the code directly, and it turns out to be a skill that rewards exactly the same kind of depth that made engineers valuable in the first place: system awareness, pattern recognition, and the ability to anticipate failure modes before they materialize.
+
+The engineer who's thriving in this transition isn't the one who's become the best at writing prompts in isolation. It's the one who can hold the shape of the whole system in mind while directing AI tools to work on individual parts of it, and who can tell when a generated output is locally correct but architecturally wrong, which is a much harder judgment than it sounds. The judgment hasn't gone away, but I would argue that it has been elevated to a different level of abstraction.
+
+What has changed is where the friction now lives. An engineer used to spend a significant portion of their time in the mechanical work of implementation: the syntax, the boilerplate, the structural scaffolding that supports the actual interesting logic. That mechanical friction is largely gone now, which means the remaining friction, the genuinely hard parts, is more visible. And some of that remaining friction is in translation: understanding what the product owner actually needs with enough precision to direct an AI agent at it, and understanding what the designer actually intended with enough fidelity to render it correctly. Those translation problems used to get buffered by the time it took to implement things manually. Now they surface much faster.
+
+### The Product Owner's Corner
+
+The pressure on the product owner's corner is more subtle and in some ways more uncomfortable, because it attacks a thing that most product owners considered a core competency: the art of writing a specification.
+
+For most of the history of product development, a specification was a document written for humans who would interpret it. Good specifications were precise enough to constrain the solution space but loose enough to leave room for the implementer's judgment, because the implementer was a person who would encounter ambiguity and make reasonable calls about how to resolve it. Writing a spec that was too prescriptive was its own problem, because it either got ignored or produced something technically compliant but experientially wrong.
+
+That implicit contract has changed. When a specification gets executed by an AI agent rather than interpreted by a human engineer, the agent's tolerance for ambiguity is different from a person's, and not in the way most people assume. An agent doesn't get frustrated with an unclear spec and ask for clarification; it makes a choice, produces an output that looks correct, and moves on. The ambiguity doesn't surface as a question or a delay; it surfaces as a result that works but wasn't quite what was intended, and now you're three iterations into something that started from a slightly wrong premise. You can combat this with adversarial review and "ask clarifying questions" prompts, but that then breaks the sense of automatic production streamlining you get from AI systems working at speed.
+
+The product owner who's thriving in this transition is the one who's developed a much higher baseline precision in how they articulate requirements, not because they're writing for machines instead of people, but because the feedback loop has gotten so fast that vagueness compounds in ways it couldn't when the translation layer was a human who'd spend two weeks implementing before anyone realized the premise was off. The tolerance for "we'll figure it out as we go" has dropped significantly, and that's actually an opportunity for the product owners who've always wanted to be more precise but were constrained by the time it took to validate assumptions. That validation is now extremely fast and extremely cheap; the bottleneck has moved to the quality of the intent going in. The concept of scope creep is still real and still painful, but it's moved from the feeling of having your arm cut off to more of a nasty concussion instead.
+
+### The Designer's Corner
+
+The designer's corner is experiencing what I'd call the artifact explosion problem, and it's one that the design community is still in the early stages of reckoning with. One caveat here is that I moved from the design world to the engineering world over 15 years ago, so I imagine my colleagues in this space will have better commentary to give than I on this, but I'm going to take my best shot anyway.
+
+AI can now produce design variants at a rate that no human designer ever could. Given a sufficiently precise description, it can generate ten layout options, twenty color variations, and a dozen different interaction patterns in the time it used to take to produce one considered prototype. That sounds like an unambiguous win, and in some ways it is. But it creates a new problem that didn't exist when design was slower: if you can produce anything, the thing that matters most is knowing what to ask for, recognizing when the output drifts from the vision even when it looks plausible, and being able to articulate that gap precisely enough for the next iteration to close it. There are plenty of designs that look great but are impractical when placed under scrutiny. The concept of having a beautifully staged home on the cover of Architectural Digest is nice as a photo op, but where are you keeping all your stuff?
+
+That's a different skill set than the one design historically rewarded. Design training and design culture have always emphasized making things: the ability to go from a concept to a finished artifact through an accumulation of craft. What the AI transition is demanding is something more like design direction, the ability to hold a clear enough mental model of the intended user experience that you can evaluate generated outputs against it accurately, and describe the gap between what you got and what you wanted in terms precise enough to close it efficiently. The designers who are struggling in this transition are often ones with deep craft skills who find that those skills are being applied less directly, and the ones who are thriving are the ones who were always, underneath the craft, really good at knowing what they were trying to make and why.
+
+There's also a secondary pressure I want to touch on briefly: designers are increasingly being asked to articulate constraints they used to express implicitly through their artifacts. A design handoff used to include the artifact itself, and an engineer could look at the artifact and infer a significant amount about the intended behavior. When AI is generating implementation from the designer's description rather than from a Figma file, the description has to carry information that the artifact used to carry non-verbally. Design systems help, but they don't fully close the gap. The designer's corner is being asked to develop a more explicit, more verbal form of design language, and that's not a natural transition for a discipline that's always been partly about the things that are easier to show than to say.
+
+<QuoteCard
+  quote="The judgment hasn't gone away, but I would argue that it has been elevated to a different level of abstraction."
+  emphasis="elevated to a different level of abstraction"
+  attribution="on engineering"
+/>
+
+## The Diffusion Problem
+
+If you've been reading the last three sections and thinking "yes, this is exactly what's happening on my team," I want to make sure we're clear about something: the changes I've described at each corner are largely happening in isolation from the changes at the other corners. Every corner is adapting plenty; they're just adapting separately and individually.
+
+This is where I think the really interesting and underexamined problem lives, and it's one that's distinct from the skills conversation I've been reading about across other articles.
+
+Consider what happens when a designer on your team figures out a prompt pattern that reliably produces production-ready component specifications. That discovery is enormously valuable. It compresses hours of iteration into minutes and produces more consistent output than the previous approach. In many organizations right now, that discovery lives in that designer's local AI chat history, possibly in a personal Notion document, maybe verbally shared in a team meeting before everyone moves on to the next topic. The engineer who's working on adjacent problems next Tuesday won't know it exists. The product owner drafting a spec that would benefit from knowing the design iteration is this cheap now won't factor that into how precisely they write the spec. The discovery happened, produced individual velocity, and then decayed before it could compound. I myself am making discoveries every day as I dedicate myself to this sort of work on a nightly basis, and yet here I am expressing my ideas in a blog format hoping the right people learn and share in my discoveries.
+
+Multiply that by every person on your team, at every corner, figuring things out every week, and you can see the shape of the problem. Each corner is getting individually faster. The triangle isn't getting more coherent. Individual velocity and organizational velocity are not the same thing, and confusing them is currently one of the more expensive mistakes in the industry.
+
+Jaime Teevan, Chief Scientist at Microsoft, put it plainly at UNLEASH America 2026 earlier this year: ["the biggest mistake that an organization can make now is to optimize for individual productivity without thinking about collective efficiency."](https://www.unleash.ai/unleash-america/ai-is-reshaping-work-at-every-level-focus-on-collaborative-performance-not-individual-productivity/) Her framing is that the first wave of AI adoption has been about what individuals can accomplish on their own, and the impact has been significant, but the next wave, the one that actually raises the tide for all ships, is about collective performance. The triangle problem is a collective performance problem, and most teams are still treating it as an individual one.
+
+The reason I've been thinking about this through a specific lens this week is thanks to my colleague Geoff Dudgeon, who is Head of AI for Product Management at Capital One, sharing an article with me about Ramp, a company that's done some of the most publicly documented thinking about internal AI adoption, who ran directly into this problem and built a deliberate solution for it. Their CEO [Eric Glyman described it on X](https://x.com/eglyman/status/2043362828178841860): 99% of Ramp's employees were using AI daily, but most people were stuck, not because the models weren't capable enough or their prompts were poor, but because everyone was figuring things out alone on isolated little islands in the company. Terminal configurations, <EduCall term="MCP server" eli5="Model Context Protocol Servers are a standardized way of giving AI models access to external tools, data sources, and services. Think of them as a set of adapters that let AI connect to things like your calendar, your codebase, or your company's internal systems. When every engineer on a team has to configure their own MCP setup from scratch, that's configuration work being repeated in parallel rather than solved once and shared." wikiSlug="Model_Context_Protocol" /> setups, workflow optimizations: each person solving the same problems in their own corner, building no shared foundation.
+
+Their answer was a product they call Glass. The details of how it's built are fairly interesting, but the strategic logic behind it is more important than any individual feature it happens to showcase. Glass is a shared surface of outcomes and methods that turns individual discoveries into organizational infrastructure. [Seb Goddjin's original thread on X](https://x.com/sebgoddijn/status/2042285915435937816) explaining what they built has been viewed nearly a million times, which tells you something about how many teams recognized their own problem in his description.
+
+My understanding is that the core of it works like this: Glass comes pre-configured with single sign-on that connects every employee's context, from their Slack channels and Notion docs to their active Linear tickets and Salesforce records, so every AI session starts with full organizational context rather than a blank slate. On top of that foundation sits a marketplace they call Dojo, where employees can package their best-discovered workflows as reusable skills in markdown format, so that when a designer figures out a better way to articulate a component constraint, that discovery becomes something every product owner and engineer can also access. The catalog has grown to over 350 shared skills company-wide, with an AI guide that surfaces the handful most relevant to each person's role and recent work so that no one has to browse 350 options to find the one they need. New patterns find the people who need them, rather than waiting to be discovered independently.
+
+What Ramp observed is that the problem wasn't that their people weren't smart or weren't trying. It was that breakthroughs were happening everywhere constantly but not becoming infrastructure anywhere. You can think of it like a research lab where every scientist is running experiments and publishing results, but no one has a shared lab notebook and the results are filed by individual rather than by finding. Individually, everyone is productive, but collectively the discoveries aren't able to compound and build upon one another in a cascading effect. They were lacking the shared surface that could make all of their discoveries coalesce into whatever was coming next for the company.
+
+I see this as more of a knowledge diffusion problem than it is a skills problem, and that distinction is important before you go about trying to solve anything. Telling your team to develop adjacent skills is addressing the wrong bottleneck. The bottleneck isn't that no one at your company figured out a better way; it's that when they did, only one person got faster because of it.
+
+<QuoteCard
+  quote="The bottleneck isn't that no one at your company figured out a better way; it's that when they did, only one person got faster because of it."
+  emphasis="only one person got faster because of it"
+  attribution="on not sharing breakthroughs with your peers"
+/>
+
+## What a Production Layer Changes
+
+The knowledge diffusion problem and the production velocity problem are related but distinct, and solving one without the other leaves most of the potential value on the table.
+
+Glass solves diffusion: it ensures that when someone figures something out, that knowledge becomes available to everyone. But diffusion alone doesn't close the gap between "we know what to build" and "we built it." The triangle still has the production step, where intent becomes artifact, and for most teams that step is still primarily owned by engineers even as AI assistance has accelerated it.
+
+The complementary problem is: what happens when a production pipeline becomes capable enough that any corner of the triangle can drive it, and shared intelligence makes every person's understanding of the system rich enough to drive it well?
+
+I've been spending a significant amount of my own time in this space, building an <EduCall term="agentic production pipeline" eli5={"Agentic pipeline refers to a system where AI agents, rather than humans, handle the sequential steps of a production workflow: planning work, writing code, reviewing it, testing it, and iterating on failures, with a human setting the direction and reviewing the outputs rather than doing each step manually. The 'agentic' part means the system is taking autonomous action toward a goal rather than just answering a question."} wikiSlug="Agentic_AI" /> called [Tekhton](https://github.com/GeoffGodwin/tekhton) as a public, open-source project. It's now approaching its fourth major version, and one of the things I've come to believe through actually building it, rather than theorizing about it, is that a production pipeline without a shared knowledge layer is only solving half the problem. The pipeline can go fast, but if the only people who know how to direct it are the engineers who built it, you've traded one translation bottleneck for another. The handoff between the product owner's intent and the engineer's prompt is still a point of loss, still an interpretation gap, still a place where a vague "and make it feel premium" produces an output nobody actually wanted.
+
+<RepoCard
+  owner="GeoffGodwin"
+  repo="tekhton"
+  description="One intent. Many hands."
+  language="Shell"
+  img="https://raw.githubusercontent.com/GeoffGodwin/tekhton/main/assets/tekhton-logo.svg"
+/>
+
+Tekhton's v4 design is explicitly reaching toward what I'd call enterprise-grade organizational connectivity: provider-agnostic model routing that lets different parts of the production process use different models at different cost points, specialist persona additions that let the pipeline embody the perspective of different corners of the triangle when evaluating its own output, and the kind of shared context architecture that makes the pipeline aware of accumulated organizational decisions rather than starting fresh on each task. The goal is a production system that gets smarter as the team uses it, because each run deposits institutional knowledge back into the context that the next run draws from.
+
+What Ramp demonstrated with Glass, and what the Tekhton v4 design is reaching toward from the production side, is a picture of how these two things fit together. A shared intelligence layer ensures that what any person on the team learns becomes available to the others. A production-capable pipeline that's connected to that intelligence layer means that what the team has collectively learned gets expressed in what gets built, automatically, without requiring a separate translation step. The product owner's accumulated understanding of customer priorities shapes the pipeline's priorities. The designer's established constraints about the design system inform the pipeline's design decisions. The engineer's architectural preferences persist across sessions as the baseline that new work is evaluated against.
+
+A pipeline disconnected from shared intelligence is a fast machine that the team has to manually reprogram every time someone learns something new. A shared intelligence layer disconnected from a production pipeline is a very good library of prompts that still requires human effort to execute. Together, they're something closer to a production environment that learns from the team that uses it, and that's a compounding advantage rather than a fixed one.
+
+For what it's worth, Tekhton is free, MIT-licensed, and openly documented at every stage of its development. If you're curious what a production pipeline designed around these ideas actually looks like in practice, the repository and design documents are the most honest version of the answer I can give you, and I'd welcome your feedback.
+
+---
+
+## What Scooting Toward the Center Actually Looks Like
+
+I want to be careful here, because the obvious response to the argument I've been building is "so everyone should learn everyone else's job," and that's not quite what I mean. Depth still matters. A designer who tries to be a competent engineer on top of being a competent designer is likely to become a mediocre version of both. The center of the triangle isn't a place where everyone does everything; it's a place where everyone has enough fluency in the adjacent corners to communicate across them more precisely, to make the translation work cheaper, and to recognize when a breakthrough in one corner creates an opportunity in another.
+
+The broader pressure to develop this fluency is real and coming from the top of a lot of organizations. Shopify CEO Tobi Lütke made headlines in April 2025 when he published an internal memo declaring that ["reflexive AI usage is now a baseline expectation"](https://www.inc.com/ben-sherry/shopify-ceo-to-employees-use-ai-now/91173063) for every employee regardless of role, and that teams requesting new headcount would first have to demonstrate why AI couldn't handle the work. Whatever you think of the memo's tone, the underlying directive is spreading: AI fluency is becoming a job requirement, not a differentiator, and the teams that treat it as such are pulling away from the ones still treating it as optional.
+
+Here's what scooting toward the center looks like concretely, at each corner.
+
+**For engineers:** the investment that matters most right now is in communication fluency toward the other two corners, and in becoming thoughtful about what your team's shared production context should contain. The ability to articulate technical constraints in terms that are useful to a designer (not "we can't do that" but "here's what we can do and here's the tradeoff space") makes the designer's next iteration dramatically more useful. The ability to explain why an ambiguous spec produces unpredictable output, in terms a product owner can hear without feeling criticized, makes the next spec better. And taking twenty minutes after a productive week to document what you figured out, in a form that a non-engineer can apply, is probably the highest-leverage thing most engineers aren't doing.
+
+**For product owners:** the investment that matters most is in raising the baseline precision of how you express intent, not for AI's sake but for the sake of the people who have to interpret that intent downstream. Write your requirements as though the person executing them won't be able to ask you follow-up questions, because increasingly they won't, and even when they're human they deserve a spec that doesn't require a meeting to decode. Beyond that, the product owners who are moving toward the center are the ones who are engaging with the actual output of the design and engineering process earlier, not waiting for a demo to give feedback but looking at rough iterations when they're cheap to change. AI has made those rough iterations very cheap. The feedback loop that used to require two-week sprints can now happen in hours if the product owner is willing to engage at that cadence.
+
+**For designers:** the investment that pays off is in developing a more explicit vocabulary for what you're trying to make before you make it. The instinct in design is to prototype and iterate your way to clarity, and that instinct still serves well, but the AI-augmented version of that process rewards being able to describe the intent of an artifact, not just produce it. What problem is this interface solving, what experience should the user have moving through it, and what constraints from the design system apply, are questions a designer who can answer in precise verbal terms will get dramatically more value from AI tools than one who knows the answers only implicitly. This isn't asking designers to become writers; it's asking them to make explicit the reasoning that's always been underneath the craft.
+
+The thing all three of these movements have in common is a shift toward more deliberate knowledge sharing as a work habit, not as a process overhead but as a first-class part of the job. The teams I find most interesting to watch right now are the ones that treat collective learning as infrastructure, where figuring something out creates an obligation to share it in a form that the other corners can use, not because anyone mandated it but because the people on the team have understood that individual velocity is nice and organizational velocity is what actually wins. If your company or team is using mechanisms that promote competition but don't reward sharing discoveries and cross-collaboration, you should really revisit why.
+
+---
+
+## The Hopeful But Honest View of Tomorrow
+
+I've been deliberately avoiding the framing that dominates most coverage of AI's impact on production teams, the "is your job going away" question, not because I think it's unimportant, as it keeps me up some nights as well, but because I think it's the wrong level of analysis for the people who are actually trying to figure out what to do next week. It's a question about the destination without a useful answer about the path.
+
+Here's what I actually believe, with as much honesty as I can bring to it.
+
+The roles aren't going away. The demand for product thinking, for design judgment, for engineering depth, is increasing alongside the increase in what can be built. What's going away, gradually and unevenly, is the time spent in the mechanical layers of each role: the boilerplate code, the routine asset generation, the specification formatting, the structural scaffolding. That time is being reassigned, not eliminated, and it's being reassigned to the things that were always the hardest and most valuable parts of each job: knowing what to build, knowing how it should feel, knowing whether it can scale.
+
+The people who will have the most difficulty in this transition are the ones who built their professional identity primarily around the mechanical layer. Not because they aren't skilled, but because the mechanical layer is the one that's most directly automated, and rebuilding a professional identity around a different layer of the same discipline is hard work. I have real empathy for that difficulty, and I don't think it helps anyone to minimize it.
+
+The people who will find this transition creates more opportunity than it removes are the ones who've always cared most about the hard problems at the top of each corner: the product person who genuinely loves the puzzle of figuring out what customers actually need, not just writing specs; the designer who cares most about whether the experience is right, not just whether the artifact is finished; the engineer who's most interested in whether the system is architected correctly, not just whether it compiles. Those people are going to find that they have more time for the parts of their job they actually find interesting, and that their ability to move fast on the production layer means their judgment gets tested and refined at a rate that wasn't previously possible.
+
+What I'm most optimistic about is the compounding effect of teams that actually solve the knowledge diffusion problem. A team that builds a shared intelligence layer, connects it to a production pipeline, and maintains the discipline to treat collective learning as infrastructure, will be faster in six months than they are today in ways that a team without that infrastructure won't be able to replicate by just hiring more people or buying better tools. The advantage is in the accumulated institutional knowledge that the shared surface preserves and the production layer expresses, rather than in individual tools. That compounds in a way that headcount and tooling spend doesn't.
+
+My conclusion is that the triangle is closing. The corners that move toward the center deliberately, that invest in shared fluency and shared infrastructure, are the ones that will find the center to be a remarkably productive place to operate from. The corners that wait for the pressure to force them there will arrive at the same destination, but later, with less influence over what it looks like when they get there.
+
+The question worth sitting with isn't whether this is happening. It's whether you're spending any time this week helping the people at the other corners of your triangle get faster, and whether when you figure something out, you're doing anything to make sure it doesn't die with your local chat history.
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
