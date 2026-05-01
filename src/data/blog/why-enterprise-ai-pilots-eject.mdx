@@ -1,0 +1,120 @@
+---
+title: "Why Enterprise AI Pilots Eject: It's Your Org Chart"
+description: "Most enterprise AI pilots don't fail dramatically; they expire quietly. The reason isn't model quality or data — it's that nobody owns the seam between the AI capability and the organizational process it's supposed to serve."
+pubDatetime: 2026-05-01T10:00:00Z
+tags:
+  - artificial intelligence
+  - agentic systems
+  - enterprise architecture
+featured: false
+draft: false
+audioUrl: "https://audio.geoffgodwin.com/why-enterprise-ai-pilots-eject_final.mp3"
+spotifyUrl: ""
+---
+
+import QuoteCard from "@/components/QuoteCard.astro";
+import EduCall from "@/components/EduCall.astro";
+import RepoCard from "@/components/RepoCard.astro";
+import XkcdCard from "@/components/XkcdCard.astro";
+
+## The Familiar Pattern
+
+If you work in or around enterprise technology, there's a good chance you've seen this before: A team somewhere in the organization gets excited about an AI use case, something concrete and scoped, the kind of thing that will demo well. Leadership is supportive, so a vendor gets involved, or an internal team stands one up, and for a few months the pilot is the thing everyone's pointing to as evidence that the organization is moving forward successfully. The outputs look promising and the people using it seem to be advantaged. Eventually, someone puts together a slide deck showing the productivity numbers and a whole lot of back-patting ensues.
+
+And then, somewhere between month four and month nine, the energy starts to fade. The pilot doesn't exactly fail, and there's no dramatic incident, no meeting where someone stands up and says "this isn't working". It just stops being the thing people are focused on and talking about. The steering committee agenda moves on to the next thing, and the team that built it gets pulled toward other priorities. The tool keeps running, technically, but nobody's actively developing it or expanding it, and when someone new joins the team and asks about it, the answer is usually some version of "oh, that thing, yeah, it's complicated."
+
+This is the dominant outcome for enterprise AI pilots right now, quiet expiration over dramatic failure. The MIT NANDA Initiative's research, based on 150 executive interviews and analysis of 300 public AI deployments, found that only about 5% of generative AI pilots achieve rapid revenue acceleration. McKinsey's 2025 State of AI survey, drawing on nearly 2,000 organizations worldwide, found that two-thirds of companies are still stuck in what their report calls "pilot purgatory," running AI experiments that never graduate to production. The models aren't the problem. The data quality, while important, isn't usually the first-order failure either. Something else is going wrong earlier in the process, and it's the same something in organization after organization.
+
+My argument is that the "something" is structural, and that it shows up on the org chart before it shows up anywhere else.
+
+---
+
+## Own the Seam
+
+Every AI pilot that makes it into an enterprise environment creates a seam. Not a technical one, exactly, though it does have technical consequences. It's the interface between what the AI capability does and what the organization does with it, the point where a model's output becomes an employee's input, or an automated decision becomes a business action, or a generated draft becomes a sent communication. That seam exists in every deployment, no matter how simple the use case, and the question of who owns it is, in my experience, the question that determines whether a pilot becomes a permanent capability or quietly gets shelved after the steering committee stops asking about it.
+
+The research backs this up pretty directly. McKinsey's data shows that only about 6% of organizations qualify as what they call "AI high performers," meaning they're seeing meaningful <EduCall term="EBIT" eli5="EBIT stands for Earnings Before Interest and Taxes — a measure of a company's operating profitability that strips out the effects of how it's financed and what jurisdiction it pays taxes in. It's commonly used to compare the underlying performance of businesses with very different debt loads or tax situations, which is why consultancies reach for it when measuring AI's bottom-line impact." wikiSlug="Earnings_before_interest_and_taxes" /> impact from their AI investments. The single strongest predictor of being in that 6% wasn't model sophistication, data quality, or technology budget. It was whether the organization had fundamentally redesigned its workflows when deploying AI, something only about 55% of high performers did, compared to roughly 20% of everyone else. As Barry O'Reilly put it plainly: "Most companies aren't failing at AI. They're failing at the conditions required for AI to succeed." NANDA's executive interviews surface the same pattern from the qualitative side: the pilots that stalled didn't stall because the model was wrong, they stalled because no one had reorganized around what the model could actually do.
+
+Here's what that dysfunction looks like from the inside: the AI team owns the model. They care about accuracy, latency, cost per token, and whether the outputs are good enough to be useful. The process team owns the workflow. They care about whether their people are using the tool, whether the integration points make sense, and whether the change management story is coherent. Both teams are doing their jobs. Neither team owns the seam between them, because the seam isn't anyone's job. It belongs to a steering committee that meets quarterly, or to a project manager who has seventeen other priorities, or to nobody at all because everyone assumed someone else had it.
+
+What that creates is a specific and entirely predictable failure mode. The questions that live at the seam, the ones that actually determine whether the deployment succeeds, go unanswered. Who decides when the AI's output is good enough to act on? Who decides when the upstream process needs to change because the model can't handle the inputs it's being given? Who decides when a known failure mode is acceptable risk and when it's a blocker? Who has the authority to say "we're not going to production until this is resolved" and actually be heard?
+
+In most enterprise AI pilots that I've observed or been part of, nobody has clear authority to answer any of those questions, and the pilot drifts forward on momentum and optimism until it runs into a problem that requires a real decision, at which point it stalls, escalates through several layers of org chart, and either gets quietly discontinued or survives in a reduced form that no longer resembles the original use case.
+
+Think of it this way: you can have an excellent electrical contractor and an excellent plumbing contractor working on the same building, and if they're each doing good work independently, every inspection they face will pass. But if nobody is responsible for coordinating where the pipes run relative to where the wiring runs, you'll eventually open a wall and find a problem that neither contractor caused individually and that both of them will point at the other to fix. The seam between two competent teams, unowned, is where the expensive surprises live.
+
+<QuoteCard
+  quote="The seam between two competent teams, unowned, is where the expensive surprises live."
+  emphasis="where the expensive surprises live"
+  attribution="on AI pilot failure modes"
+/>
+
+The fix isn't a new tool or a better model. It's an accountable human being, or a small accountable team, with authority on both sides of the seam: enough technical standing to have a real conversation with the AI team about capability limitations, and enough process authority to tell the business side when something needs to change before the AI can be trusted with it. McKinsey's data makes this concrete: high-performing organizations are three times more likely to have senior leaders who actively demonstrate ownership of AI initiatives, not just approve the budget, but actually engage with whether the deployment is working and why. That combination of authority is rare, which is exactly why most pilots don't survive contact with a real organizational decision.
+
+---
+
+## It's 1am, Do You Know Where Your Structural Divergence Is?
+
+The seam ownership problem I've been describing doesn't just live between the AI team and the business process team. It has an internal analog that I choose to name only because it shows up in a slightly different form inside the codebases that enterprise engineering teams are building with AI assistance right now.
+
+I wrote about this at length in a recent post on [Structural Divergence](https://geoffgodwin.com/posts/structural-divergence/), so I'll keep this brief and let that piece do the heavier lifting, but the short version is this: when multiple AI agents, or multiple developers using AI assistance, contribute to the same codebase without a shared structural awareness of the whole, the codebase drifts. Not in any single dramatic way, but gradually and in aggregate, as each individually reasonable contribution pulls the system slightly further from coherence. One module handles errors one way, another handles them a different though equally acceptable way. While each approach made sense within their own context, nobody was watching whether the two contexts were still pointing in the same direction. You end up with two redundant but acceptable ways to do the same thing.
+
+I've been calling the measure of that drift the Structural Divergence Index, and my understanding is that nothing like it currently exists as a named, tracked quantity in any widely adopted engineering practice. The existing quality tools, linters, static analyzers, code review, evaluate at the wrong unit of analysis. They inspect individual structures and individual changes. They don't tell you whether the collective direction of all those changes is coherent.
+
+<RepoCard
+  owner="GeoffGodwin"
+  repo="structural-divergence-indexer"
+  description="An open instrument for measuring the Structural Divergence Index of a codebase: pattern entropy, coupling drift, boundary erosion, and convention consistency tracked over time."
+  language="Python"
+  languageColor="#3572A5"
+/>
+
+This is the same seam ownership problem in a different costume. In the enterprise AI pilot, the seam is between the AI capability and the organizational process. In the AI-assisted codebase, the seam is between what each agent session produces and what the overall system is supposed to be. In both cases, nobody owns it, and in both cases the drift is invisible until it's expensive.
+
+I've been working through these ideas in practice with a personal open-source project called Tekhton, which I want to be clear is an experiment and a learning vehicle, not a product I'm selling. It's MIT licensed and publicly available for anyone who wants to think through these problems alongside me. Tekhton defines two explicit roles: a Reviewer, responsible for evaluating whether individual AI-generated contributions are coherent with the existing system, and an Architect, responsible for maintaining a structural snapshot of the whole and flagging when the aggregate is drifting even when individual contributions look fine. Those roles exist specifically because I found, in practice, that without them the seam went unowned and the drift accumulated faster than I expected.
+
+<RepoCard
+  owner="GeoffGodwin"
+  repo="tekhton"
+  description="One intent. Many hands."
+  language="Shell"
+  img="https://raw.githubusercontent.com/GeoffGodwin/tekhton/main/assets/tekhton-logo.svg"
+/>
+
+One thing worth being transparent about: Tekhton predates the SDI tooling I described in the structural divergence post, and I'm currently rewriting it in Go specifically so it can incorporate that measurement properly. The Architect role as it stands today works from structural snapshots and review heuristics; the SDI instrumentation is the planned next layer. I'm flagging this not as a caveat but because any technically literate reader would reasonably wonder why my own tool isn't already using the index I just described, and the honest answer is that the sequencing of the work got ahead of the implementation.
+
+---
+
+## What Partial Success Looks Like
+
+I want to be careful here not to suggest that nobody has figured this out, because that's not accurate either, and a fair argument requires acknowledging the organizations that have gotten at least partway there.
+
+The clearest example I'm aware of in financial services is a firm that coined its own term for the boundary before deploying AI at scale: "intelligent augmentation," or IA, as a deliberate reframing of what AI is for inside their investment process. The framing isn't just marketing language. It encodes a boundary decision: AI will inform and enrich human judgment, and human judgment will retain final authority. This is fundamentally an organizational constraint rather than a technical one, and the fact that it was named and stated publicly before the tools were deployed is significant. Their Q4 2024 earnings call noted that 280 investors were actively using their internal AI tool, described as a custom tool embedded within the private environment of their research platforms, and characterized the approach as one that "enables investors with additional data points to aid their decision-making." The tool augments the analyst. The analyst owns the decision. The seam is owned by the framing itself, which was established before anyone wrote a line of integration code.
+
+That's still partial credit, not a fully solved problem. Naming a boundary and operationalizing it across a large organization are two different things, and I'd be overstating the case to suggest that every pilot inside such a firm runs smoothly because they chose good language for their strategy. But the naming is important, because it then forces an equally important conversation. Software architects will recognize this instinct immediately: it's precisely why we love <EduCall term="Architecture Decision Records" eli5="Architecture Decision Records, or ADRs, are short documents that capture a single architectural choice, the context that drove it, and the consequences accepted by making it. They're the engineering equivalent of writing down 'we decided X because Y' so that future contributors don't have to reverse-engineer the reasoning from the code months or years later, and so that any departure from the decision has to be a deliberate argument rather than a quiet drift." wikiSlug="Architectural_decision" />. An ADR is how we officially document a decision before execution begins, which means we own that stance going forward and can be held accountable to it. Naming the boundary before the pilot is the organizational equivalent of writing the ADR before the build. It doesn't guarantee the right outcome, but it does mean that departing from the decision requires someone to make a deliberate argument rather than quietly defaulting to whatever is most convenient at deployment time.
+
+A recent Stanford Digital Economy Lab study of 51 successful enterprise AI deployments found a similar pattern across industries: organizations that drew a deliberate line between what AI would do autonomously and what would require human review before acting consistently outperformed those that left the boundary undefined and negotiated it case by case under pressure. The study noted that in regulated industries this line is often legally mandated anyway, but that even in unregulated contexts, high-performing deployments treated it as a design decision rather than an operational afterthought. The difference, to put it plainly, is whether the seam gets drawn on a whiteboard before the pilot or in a postmortem after it.
+
+---
+
+## The Practical Takeaway
+
+If there's one thing I'd want you to carry out of this post and into your next conversation about an AI deployment, it's this: before the pilot launches, ask who owns the seam. Not who built the model, not who owns the process it's being integrated into, but who has authority over the interface between the two. If the answer is a committee, that's a signal. If the answer is unclear, that's a louder signal. And if nobody in the room has thought to ask the question yet, that's the loudest signal of all.
+
+I'll be direct about something here: I think the seam owner should be a dedicated role, with a real title and real headcount. The instinct to absorb this responsibility into an existing position is understandable, and I recognize it's the answer most organizations will reach for first because it's cheaper and requires fewer difficult conversations. But we've spent the better part of a decade getting very comfortable with the compression and compaction of senior technical roles, where a single person is expected to carry the responsibilities of several but compensated as though they're carrying one. That pattern is part of why seams go unowned in the first place: the person nominally responsible for the boundary already has a full-time job on one side of it. Giving the seam a name attached to it is necessary but not sufficient. Giving it a person whose primary accountability is the boundary itself, with the authority to make decisions that stick on both sides, is the part that actually changes the outcome.
+
+The parallel to the codebase layer is deliberate and, I think, instructive. When I look at why Tekhton needs an Architect role, and why I've been building toward SDI instrumentation to support it, the underlying answer is the same as the one I've been giving for enterprise pilots throughout this post: coherence doesn't emerge on its own from individually reasonable contributions. It requires someone whose explicit job is to watch the aggregate, ask whether the whole is still pointing in the direction the parts seem to think it is, and have the standing to intervene when the answer is no.
+
+<QuoteCard
+  quote="Coherence doesn't emerge on its own from individually reasonable contributions."
+  emphasis="individually reasonable contributions"
+  attribution="on the seam, the codebase, and the org chart"
+/>
+
+The organizations getting this right aren't necessarily the ones with the most sophisticated models or the largest AI budgets. They're the ones that asked the boundary question before the build began, wrote the answer down somewhere that carries organizational weight, and gave a specific person the authority to hold the line. Doing that well is fundamentally a governance decision, and it's one that most enterprise AI programs are deferring until after the pilot has already started to drift.
+
+A follow-up post will move further up the stack, from the repository and the org chart to the people inside both, and ask what it means for senior technical practitioners when the most valuable thing they can contribute to an AI deployment isn't their ability to build the model but their ability to own the seam around it. I believe that's where the genuinely durable leverage is going to live as AI capability becomes increasingly commoditized, and it's the question I'm most interested in thinking through next.
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
