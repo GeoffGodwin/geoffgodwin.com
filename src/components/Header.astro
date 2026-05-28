@@ -464,6 +464,15 @@ const isActive = (path: string) => {
     let isScrolled = window.scrollY > ENTER_THRESHOLD;
     let rafPending = false;
 
+    function publishHeaderHeight() {
+      // Exposed as a CSS var so other sticky components (e.g. the audio
+      // mini-player) can dock just below the header without measuring it themselves.
+      document.documentElement.style.setProperty(
+        "--header-height",
+        header!.offsetHeight + "px"
+      );
+    }
+
     function applyScrolled(scrolled: boolean) {
       isScrolled = scrolled;
       header!.classList.toggle("header-scrolled", scrolled);
@@ -471,6 +480,9 @@ const isActive = (path: string) => {
       navWrap!.classList.toggle("sm:py-3", scrolled);
       borderLine!.classList.toggle("opacity-0", !scrolled);
       borderLine!.classList.toggle("opacity-100", scrolled);
+      // padding flip changes height; republish after the next paint so the
+      // CSS var tracks the new value.
+      requestAnimationFrame(publishHeaderHeight);
     }
 
     const handleScroll = () => {
@@ -489,6 +501,12 @@ const isActive = (path: string) => {
 
     window.addEventListener("scroll", handleScroll, { passive: true, signal });
     applyScrolled(isScrolled); // Init instantly
+    publishHeaderHeight();
+
+    // Republish on viewport-width changes (mobile menu wrap, breakpoint flips).
+    const ro = new ResizeObserver(publishHeaderHeight);
+    ro.observe(header!);
+    signal.addEventListener("abort", () => ro.disconnect());
   }
 
   function setupMobileNav() {
