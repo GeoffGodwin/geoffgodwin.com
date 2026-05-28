@@ -1,0 +1,111 @@
+---
+title: "While You Were Prompting"
+description: ""
+pubDatetime: 2026-05-28T10:00:00Z
+tags:
+  - artificial intelligence
+  - agentic systems
+  - enterprise architecture
+featured: false
+draft: false
+audioUrl: "https://audio.geoffgodwin.com/why-enterprise-ai-pilots-eject_final.mp3"
+spotifyUrl: "https://open.spotify.com/episode/1e0tAhG1p8dTpVVjtPlQgt?si=VxiRwW9QRHiHEhDUGgHyCQ"
+---
+
+import QuoteCard from "@/components/QuoteCard.astro";
+import EduCall from "@/components/EduCall.astro";
+import RepoCard from "@/components/RepoCard.astro";
+import XkcdCard from "@/components/XkcdCard.astro";
+
+I've noticed a pattern that plays out almost universally when a product organization gets access to a new generation of AI tools. Someone on the team, usually someone curious and well-intentioned, figures out that they can use the tool to write better acceptance criteria, or generate a first pass at a PRD, or summarize a backlog grooming session. Within a few weeks of sharing that, a handful of people are then also doing it. Within a few months, leadership declares the organization "AI-enabled." And then within a year, a competitor who thought about the problem completely differently ends up pulling ahead in a way that only seems obvious with 20/20 hindsight.
+ 
+The instinct to reach for the nearest familiar workflow and slot a new tool into it is completely understandable. It's also, I'd argue, the single most expensive mistake a product organization can make right now. Using AI for ticket refinement isn't an inherently bad thing to be doing, but I seriously think it mistakes a productivity gain for a strategic one. You're effectively still just building a better mousetrap when the problem has steadily outgrown the mousetrap entirely.
+ 
+McKinsey's 2025 State of AI report puts some useful numbers behind this instinct. While 88% of organizations now report using AI in at least one function, only about one-third have begun scaling it across the enterprise, and meaningful bottom-line impact remains rare across the broader population. What separates the organizations that are seeing real impact from those running expensive experiments that never graduate? The high performers are nearly three times more likely to have fundamentally redesigned their workflows when deploying AI, rather than layering new tools onto the processes they already had. The optimization is real. The strategic bet is the problem.
+ 
+The organizations that actually pull ahead with AI in the next few years won't be distinguished by how efficiently they generate artifacts. They'll be distinguished by whether they built something fundamentally different: a shared semantic surface that makes their collective product intelligence legible to both the humans working within it and the AI workloads running against it. I personally call that abstract surface the "Intent Fabric", and this post is my way of explaining what it is and what it demands of the people who should build one.
+ 
+---
+ 
+## What You're Really Managing
+ 
+Most product teams, if you observe them honestly, aren't managing product intent. They're managing artifacts that were, at some earlier point in time, a reasonable proxy for intent.
+ 
+Jira tickets represent an intent when they are written. Figma files capture a design decision that makes sense in the context of what the team understands at that moment. A PR solves a problem as it is defined when the branch is opened. Therein lies the rub: products evolve, markets shift, customer signals accumulate, and the reasoning behind those artifacts steadily evaporates or blurs while the artifacts themselves persist statically. By the time a new team member, a new executive, or a new AI workload asks "why does this work this way," the answer is usually somewhere between institutional memory and archaeological excavation.
+ 
+While there are many people trying to solve this by throwing more tools and AI integrations into the mix, I'd argue it's actually a structural problem more than a technical one.
+ 
+There's also something more personal at stake here for people, and I don't want to simply gloss over it when talking about AI transformations. Those artifacts that are often seen as "work outputs" are in fact identity objects. A product owner's tickets, a designer's Figma files, a developer's pull requests, these are the things people point to when someone asks what they've shipped. They're the currency of performance reviews, promotion conversations, and professional reputation. Any honest conversation about changing how product teams work has to reckon with this directly, because if the people in the system don't understand what changes and what stays the same, the organizational immune response will kill the effort before it gets traction. I'll come back to this.
+ 
+---
+ 
+## Introducing the Intent Fabric
+ 
+The concept I want to describe isn't a replacement for the artifacts your team already produces. Instead I like to think of it as a layer that connects them, carries the reasoning between them, and keeps the "why" alive alongside the "what" as the product evolves.
+ 
+Think of it as a knowledge graph where every artifact your team produces becomes a node: requirements, design decisions, customer signals, open questions, feature definitions, or outcome targets. The connecting edges between those nodes are the relationships that actually explain how your product works and why decisions were made: this feature exists because of that customer signal, this design decision was constrained by that technical boundary, this open question is blocking progress on these three things. The graph doesn't seek to replace the Figma file or the ticket as those are actual, necessary artifacts. Instead it contextualizes them by making the reasoning between them legible in a way that a flat document or a linear backlog never can.
+ 
+This is the Intent Fabric: a shared semantic layer where product intent lives not as a static document produced at the start of a cycle but as a living, connected structure that evolves as the product does.
+ 
+The shift in individual ownership is real, but let's try to be precise about what actually changes. Your Figma file, tickets and code still all exist. What changes is that your artifacts now exist in relationship to the shared intent, and the value of your contribution is visible not just in the artifact itself but in how well that artifact fulfills the intent it's connected to. That's a very different frame than most product organizations use today, and it's a harder cultural ask than it might initially appear.
+ 
+---
+ 
+## The System of Record Attaches to It
+ 
+The Intent Fabric isn't the codebase or the documentation. It's the layer between them that both attach to from opposite sides.
+ 
+Running services, deployed features, infrastructure, database tables, test suites: these become what I'd call the System of Record, the live implementation of your declared intents. The relationship between the Intent Fabric and the System of Record isn't a static artifact though, it's an observable signal. A completed, tested, passing feature has a strong connection to its intent node. An incomplete feature has a weak one. A feature that has drifted from its original intent as requirements evolved has a connection that has quietly degraded, and the Fabric reflects that.
+ 
+This is the feedback loop that makes this whole thing work. The Intent Fabric doesn't just describe what you meant to build. It tells you, in something approaching real time, where your implementation and your intent are in alignment and where they're not. When unit tests pass, connections strengthen. When specs drift or features go incomplete, connections weaken. The state of your product's alignment between intent and reality becomes something you can observe rather than something you have to manually audit.
+ 
+For a VP or Director trying to manage at scale, this is a meaningfully different kind of visibility than what most tooling provides you today. The question "are we building what we said we'd build, and is it still the right thing to build" becomes answerable without convening a meeting and going on a fact-finding mission through twelve generations of your codebase.
+ 
+---
+ 
+## What AI Does For Us Here
+ 
+The way most teams use AI tools today is fundamentally individual. Someone opens a tab, writes a prompt, gets an output, and either uses it or doesn't. The value is very real and very tangible but inherently local to that "someone". It doesn't compound across the team, it doesn't persist in any shared way, and it requires each person to individually decide when and how to invoke it.
+ 
+The Intent Fabric seeks to change that model entirely.
+ 
+When your AI workloads run against a shared semantic surface rather than against individual prompts on individual laptops, they can do something categorically different. Consistency checking across requirements, surfacing tensions between competing decisions, flagging weak connections between the System of Record and declared intents, monitoring for new customer signals relevant to open questions: all of this happens asynchronously, without someone needing to remember to ask. The orchestration is structural rather than individual.
+ 
+I would argue that what this changes for the team is equally significant. The team doesn't convene to figure out what they think. They convene to act on what the system has already synthesized, to make the judgment calls that require human context, organizational knowledge, and genuine expertise, and to update the shared surface with the decisions they reach. The meeting becomes a reconciliation point rather than a discovery process, and the AI's role is to make the relevant tensions and signals visible before the humans walk in the room.
+ 
+This is precisely the distinction McKinsey's research identifies in the organizations pulling ahead: they're not asking AI to do existing work faster, they're redesigning what the work actually looks like when AI is a structural participant rather than a productivity accessory.
+ 
+This only works, of course, if the surface everyone is reading from is trustworthy and truly shared. Which is where the harder conversation has to happen.
+ 
+---
+ 
+## The People Problem Is the Whole Problem
+ 
+Every attempt at shared tooling I've ever seen fail, and there have been many, failed in the same place. Not in the architecture. Not in the tooling choices. In the people layer, and specifically in the gap between what an organization says it values and what it actually rewards.
+ 
+There's a version of this that plays out so consistently it's almost a template. An organization runs an annual training on psychological safety and collaborative ownership. The slides are good. The facilitators are earnest. And then, when it comes time to calibrate performance, the same organization ranks its employees against each other on a forced curve and rewards the ones who most visibly owned something successful. The message the training sent and the message the calibration process sent are not the same message, and the people in that organization are very clear on which one to believe.
+ 
+This isn't a hypothetical dynamic. Microsoft's decade-long experiment with stack ranking is one of the most thoroughly documented examples of exactly this failure mode in the technology industry. Engineers avoided collaborating with talented colleagues because being ranked against excellent peers was a career liability. Innovative projects were avoided in favor of safe, visible, individually attributable work. By the time Microsoft abandoned the system in 2013, the damage to its collaborative culture was significant enough that reversing it became a central part of Satya Nadella's organizational transformation, one that famously included redefining performance criteria to explicitly reward how well employees contributed to others' success, not just their own.
+ 
+There's a version of that principle most of us encountered long before we entered the workforce. When a class votes on the best project submitted, the rule is usually that you can't vote for your own. That single constraint changes everything about the outcome. The moment self-interest is removed from the evaluation, people vote honestly, and the actual best work tends to win. The person who genuinely had the best project can vote freely, because their one vote doesn't determine the result, and the group's collective judgment becomes far more accurate than any individual's ranking of their peers ever could. Nadella's insight was essentially the same one restated for a Fortune 500: when you remove the structural incentive to protect your own position at the expense of others, you get a more accurate and more productive picture of what's actually valuable.
+ 
+A shared semantic surface that nobody individually owns is a direct collision with the older incentive structure. If contributing to the Intent Fabric doesn't show up on your performance review, and if the people who built the most individually impressive artifacts still advance faster than the ones who made the shared layer more useful, the Fabric will degrade into shelfware inside of a quarter. I'd bet on it.
+ 
+This is a leadership problem before it's a tooling problem, which means it lands squarely on the desk of the person reading this. The Intent Fabric only works in an organization where leadership has genuinely moved the incentive structure toward collective outcomes, not just endorsed the concept in a memo. It requires redefining what "ownership" means: a PO who makes the Intent Fabric more coherent and connected has done something valuable, even if they didn't write the ticket. A designer whose work strengthens the connection between customer signals and visual decisions has contributed something real, even if the Figma file looks similar to what they'd have produced anyway. Making that visible, and rewarding it, is the leadership act that determines whether this works.
+ 
+The cultural precondition cannot just be a soft concern you address after the architecture is in place. It has to be treated as what it is: a load-bearing element all of your architecture rests upon. Teams that try to implement shared tooling without first doing the honest internal work of aligning their incentive structures to collective outcomes will produce very expensive shelfware, and they'll all blame the tools when they do.
+ 
+---
+ 
+## The Strategic Choice
+ 
+Allow me to make a prediction: the teams that pull ahead with AI in the next few years will not be the ones with the best prompts or the most integrations. They'll be the ones who built a shared surface their entire organization, human and machine alike, could read from and write back to, and who had the leadership discipline to keep it alive when the organizational gravity pulled toward the familiar and the individual.
+ 
+The mousetrap is a fine thing. The problem is that optimizing the mousetrap is the most comfortable choice available, and comfort is a poor strategy in a moment that rewards structural rethinking. The engineers who spent the 1890s perfecting steam locomotive efficiency weren't doing anything wrong, they were just optimizing a system that the combustion engine was about to make irrelevant regardless of how well they'd tuned it. I'm not arguing that the optimization wasn't real. I'm arguing that it was the strategic bet that was the problem.
+ 
+The question I'll leave you with, as a leader with the authority to make this call, is whether your organization's incentive structures currently reinforce the collective ownership this requires, or whether they quietly work against it every single quarter. That answer tells you more about your AI readiness than any tool audit or flown-in consultancy firm ever will.
+ 
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
