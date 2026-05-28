@@ -8,6 +8,7 @@ import IconArrowNarrowUp from "@/assets/icons/IconArrowNarrowUp.svg";
     "fixed end-4 bottom-8 z-50",
     "md:end-8 md:bottom-10",
     "translate-y-5 opacity-0 transition duration-500",
+    "btt-audio-aware",
   ]}
 >
   <button
@@ -41,6 +42,21 @@ import IconArrowNarrowUp from "@/assets/icons/IconArrowNarrowUp.svg";
     </span>
   </button>
 </div>
+
+<style is:global>
+  /* When the bottom-docked mobile audio mini-player is showing, lift the
+     Back-to-Top button so it clears the bar. We shift via `bottom` (not
+     `transform`) because the BTT button's own show/hide animation already
+     drives `transform: translateY(...)` via Tailwind classes — using a
+     different axis avoids fighting that animation. Desktop mini docks at
+     the top, so no collision there. */
+  @media (max-width: 639px) {
+    body[data-audio-mini-visible="true"] .btt-audio-aware {
+      bottom: 5rem; /* default bottom-8 = 2rem; lift by 3rem clears the mini bar */
+      transition: bottom 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+</style>
 
 <script is:inline data-astro-rerun>
   /** Scrolls the document to the top when

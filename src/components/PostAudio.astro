@@ -104,6 +104,101 @@ const { src, title } = Astro.props;
   </audio>
 </div>
 
+<!--
+  Sticky mini-player. Same single <audio id="post-audio-el"> drives both UIs.
+  Hidden until the user has interacted with the inline player AND scrolled it
+  out of view. Dismissible per page-load.
+-->
+<div
+  id="post-audio-mini"
+  class="post-audio-mini"
+  data-visible="false"
+  aria-hidden="true"
+  aria-label="Listen to this post (mini player)"
+>
+  <div class="post-audio-mini-inner">
+    <!-- Play/pause -->
+    <button
+      id="post-audio-mini-btn"
+      class="post-audio-btn post-audio-mini-btn"
+      aria-label="Play narration"
+      type="button"
+    >
+      <svg
+        id="post-audio-mini-icon-play"
+        class="post-audio-icon"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M3 2.5a.5.5 0 0 1 .765-.424l10 5.5a.5.5 0 0 1 0 .848l-10 5.5A.5.5 0 0 1 3 13.5v-11z"></path>
+      </svg>
+      <svg
+        id="post-audio-mini-icon-pause"
+        class="post-audio-icon post-audio-hidden"
+        viewBox="0 0 16 16"
+        fill="currentColor"
+        aria-hidden="true"
+      >
+        <path d="M5.5 3.5A1.5 1.5 0 0 1 7 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5zm5 0A1.5 1.5 0 0 1 12 5v6a1.5 1.5 0 0 1-3 0V5a1.5 1.5 0 0 1 1.5-1.5z"></path>
+      </svg>
+    </button>
+
+    <!-- Time -->
+    <span class="post-audio-time post-audio-mini-time">
+      <span id="post-audio-mini-current">0:00</span>
+      <span class="opacity-30">/</span>
+      <span id="post-audio-mini-duration" class="opacity-50">-:--</span>
+    </span>
+
+    <!-- Progress bar (desktop only — hidden on mobile via CSS) -->
+    <div
+      class="post-audio-track post-audio-mini-track"
+      id="post-audio-mini-track"
+      role="slider"
+      aria-label="Seek audio"
+      aria-valuenow={0}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      tabindex="0"
+    >
+      <div class="post-audio-track-fill" id="post-audio-mini-track-fill"></div>
+    </div>
+
+    <!-- Jump back to inline player -->
+    <button
+      id="post-audio-mini-jump"
+      class="post-audio-mini-iconbtn"
+      aria-label="Scroll back to player"
+      title="Scroll to player"
+      type="button"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"></circle>
+        <circle cx="12" cy="12" r="2.5" fill="currentColor"></circle>
+        <line x1="12" y1="2" x2="12" y2="5"></line>
+        <line x1="12" y1="19" x2="12" y2="22"></line>
+        <line x1="2" y1="12" x2="5" y2="12"></line>
+        <line x1="19" y1="12" x2="22" y2="12"></line>
+      </svg>
+    </button>
+
+    <!-- Dismiss (per page-load) -->
+    <button
+      id="post-audio-mini-close"
+      class="post-audio-mini-iconbtn"
+      aria-label="Hide mini player"
+      title="Hide mini player"
+      type="button"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="6" y1="18" x2="18" y2="6"></line>
+      </svg>
+    </button>
+  </div>
+</div>
+
 <style>
   .post-audio-wrap {
     display: flex;
@@ -266,6 +361,120 @@ const { src, title } = Astro.props;
     font-size: 0.55rem;
     color: var(--accent);
   }
+
+  /* ───────── Sticky mini-player ───────── */
+  .post-audio-mini {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--header-height, 64px);
+    z-index: 30; /* under header (z-40) so header still owns the very top edge */
+    background: color-mix(in srgb, var(--background) 80%, transparent);
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 30%, transparent);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 4px 18px -10px color-mix(in oklab, var(--foreground) 25%, transparent);
+    font-family: var(--font-cartograph, monospace);
+    font-size: 0.75rem;
+    color: var(--foreground);
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      transform 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 200ms ease-out,
+      top 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .post-audio-mini[data-visible="true"] {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .post-audio-mini-inner {
+    max-width: 42rem; /* matches inline player's max-w-2xl wrapper for visual continuity */
+    margin: 0 auto;
+    padding: 0.45rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  /* Slightly smaller round button to match slim bar height */
+  .post-audio-mini-btn {
+    width: 1.85rem;
+    height: 1.85rem;
+  }
+
+  .post-audio-mini-time {
+    font-size: 0.72rem;
+  }
+
+  .post-audio-mini-track {
+    flex: 1;
+  }
+
+  .post-audio-mini-iconbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--foreground);
+    opacity: 0.45;
+    border-radius: 0.4rem;
+    cursor: pointer;
+    transition: opacity 0.2s, color 0.2s, background 0.2s;
+  }
+
+  .post-audio-mini-iconbtn svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .post-audio-mini-iconbtn:hover {
+    opacity: 1;
+    color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
+  }
+
+  .post-audio-mini-iconbtn:focus-visible {
+    outline: 2px dashed var(--accent);
+    outline-offset: 2px;
+    opacity: 1;
+  }
+
+  /* Mobile: dock to bottom, drop progress + jump button, keep play/time/close */
+  @media (max-width: 639px) {
+    .post-audio-mini {
+      top: auto;
+      bottom: 0;
+      border-bottom: none;
+      border-top: 1px solid color-mix(in oklab, var(--border) 30%, transparent);
+      box-shadow: 0 -4px 18px -10px color-mix(in oklab, var(--foreground) 25%, transparent);
+      transform: translateY(100%);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .post-audio-mini-inner {
+      padding: 0.55rem 0.85rem;
+      gap: 0.5rem;
+    }
+
+    .post-audio-mini-track,
+    #post-audio-mini-jump {
+      display: none;
+    }
+
+    /* Push time to the left side, close button stays on the right */
+    .post-audio-mini-time {
+      flex: 1;
+    }
+  }
 </style>
 
 <script is:inline data-astro-rerun>
@@ -281,10 +490,46 @@ const { src, title } = Astro.props;
     const speedBtn = document.getElementById("post-audio-speed");
     const wrap = document.getElementById("post-audio-player");
 
+    // Mini-player elements
+    const mini = document.getElementById("post-audio-mini");
+    const miniBtn = document.getElementById("post-audio-mini-btn");
+    const miniIconPlay = document.getElementById("post-audio-mini-icon-play");
+    const miniIconPause = document.getElementById("post-audio-mini-icon-pause");
+    const miniCurrent = document.getElementById("post-audio-mini-current");
+    const miniDuration = document.getElementById("post-audio-mini-duration");
+    const miniTrack = document.getElementById("post-audio-mini-track");
+    const miniFill = document.getElementById("post-audio-mini-track-fill");
+    const miniClose = document.getElementById("post-audio-mini-close");
+    const miniJump = document.getElementById("post-audio-mini-jump");
+
     if (!audio || !btn) return;
 
     const speeds = [1, 1.25, 1.5, 1.75, 2];
     let speedIdx = 0;
+
+    // Mini visibility: shown only after user has interacted with the inline player
+    // AND inline is scrolled out from under the header. Dismissible per page-load.
+    // All three flags reset on page navigation because data-astro-rerun re-runs this IIFE.
+    let hasInteracted = false;
+    let dismissed = false;
+    let inlineVisible = true;
+
+    function updateMiniVisibility() {
+      const show = hasInteracted && !dismissed && !inlineVisible;
+      if (mini) {
+        mini.dataset.visible = show ? "true" : "false";
+        mini.setAttribute("aria-hidden", show ? "false" : "true");
+      }
+      // Body-level flag so unrelated components (e.g. BackToTop) can react without
+      // direct coupling to the audio player.
+      document.body.dataset.audioMiniVisible = show ? "true" : "false";
+    }
+
+    function markInteracted() {
+      if (hasInteracted) return;
+      hasInteracted = true;
+      updateMiniVisibility();
+    }
 
     function fmt(s) {
       if (!isFinite(s)) return "-:--";
@@ -299,27 +544,43 @@ const { src, title } = Astro.props;
       iconPause.classList.toggle("post-audio-hidden", paused);
       btn.setAttribute("aria-label", paused ? "Play narration" : "Pause narration");
       if (wrap) wrap.classList.toggle("playing", !paused);
+
+      if (miniIconPlay) miniIconPlay.classList.toggle("post-audio-hidden", !paused);
+      if (miniIconPause) miniIconPause.classList.toggle("post-audio-hidden", paused);
+      if (miniBtn) miniBtn.setAttribute("aria-label", paused ? "Play narration" : "Pause narration");
     }
 
-    btn.addEventListener("click", function () {
+    function togglePlay() {
       if (audio.paused) {
         audio.play();
       } else {
         audio.pause();
       }
-    });
+    }
 
-    audio.addEventListener("play", syncUI);
+    btn.addEventListener("click", togglePlay);
+    if (miniBtn) miniBtn.addEventListener("click", togglePlay);
+
+    audio.addEventListener("play", function () {
+      markInteracted();
+      syncUI();
+    });
     audio.addEventListener("pause", syncUI);
 
     audio.addEventListener("loadedmetadata", function () {
-      if (durationEl) durationEl.textContent = fmt(audio.duration);
+      const d = fmt(audio.duration);
+      if (durationEl) durationEl.textContent = d;
+      if (miniDuration) miniDuration.textContent = d;
     });
 
     audio.addEventListener("timeupdate", function () {
-      if (currentEl) currentEl.textContent = fmt(audio.currentTime);
-      if (fill && audio.duration) {
-        fill.style.width = (audio.currentTime / audio.duration * 100) + "%";
+      const t = fmt(audio.currentTime);
+      if (currentEl) currentEl.textContent = t;
+      if (miniCurrent) miniCurrent.textContent = t;
+      if (audio.duration) {
+        const pct = (audio.currentTime / audio.duration * 100) + "%";
+        if (fill) fill.style.width = pct;
+        if (miniFill) miniFill.style.width = pct;
       }
     });
 
@@ -328,51 +589,103 @@ const { src, title } = Astro.props;
       syncUI();
     });
 
-    // Seeking via click/drag on track
-    function seek(e) {
+    // Seeking — works on both inline and mini tracks, drives the same audio element.
+    function seek(clientX, trackEl) {
       if (!audio.duration) return;
-      var rect = track.getBoundingClientRect();
-      var x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+      const rect = trackEl.getBoundingClientRect();
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
       audio.currentTime = (x / rect.width) * audio.duration;
+      markInteracted();
     }
 
-    var dragging = false;
-    track.addEventListener("mousedown", function (e) {
-      dragging = true;
-      seek(e);
-    });
+    let dragging = null; // currently-dragged track element (or null)
+
+    function bindTrack(trackEl) {
+      if (!trackEl) return;
+      trackEl.addEventListener("mousedown", function (e) {
+        dragging = trackEl;
+        seek(e.clientX, trackEl);
+      });
+      trackEl.addEventListener("touchstart", function (e) {
+        seek(e.touches[0].clientX, trackEl);
+      }, { passive: true });
+      trackEl.addEventListener("touchmove", function (e) {
+        seek(e.touches[0].clientX, trackEl);
+      }, { passive: true });
+      trackEl.addEventListener("keydown", function (e) {
+        if (!audio.duration) return;
+        if (e.key === "ArrowRight") {
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+          markInteracted();
+        } else if (e.key === "ArrowLeft") {
+          audio.currentTime = Math.max(0, audio.currentTime - 5);
+          markInteracted();
+        }
+      });
+    }
+    bindTrack(track);
+    bindTrack(miniTrack);
+
     document.addEventListener("mousemove", function (e) {
-      if (dragging) seek(e);
+      if (dragging) seek(e.clientX, dragging);
     });
     document.addEventListener("mouseup", function () {
-      dragging = false;
+      dragging = null;
     });
 
-    // Touch seeking
-    track.addEventListener("touchstart", function (e) {
-      seek(e.touches[0]);
-    }, { passive: true });
-    track.addEventListener("touchmove", function (e) {
-      seek(e.touches[0]);
-    }, { passive: true });
-
-    // Keyboard seeking on track
-    track.addEventListener("keydown", function (e) {
-      if (!audio.duration) return;
-      if (e.key === "ArrowRight") {
-        audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
-      } else if (e.key === "ArrowLeft") {
-        audio.currentTime = Math.max(0, audio.currentTime - 5);
-      }
-    });
-
-    // Speed cycle
+    // Speed cycle (inline only — mini intentionally omits it to keep the bar slim)
     if (speedBtn) {
       speedBtn.addEventListener("click", function () {
         speedIdx = (speedIdx + 1) % speeds.length;
         audio.playbackRate = speeds[speedIdx];
         speedBtn.textContent = speeds[speedIdx] + "x";
+        markInteracted();
       });
+    }
+
+    // Mini-only: dismiss + jump back to inline player
+    if (miniClose) {
+      miniClose.addEventListener("click", function () {
+        dismissed = true;
+        updateMiniVisibility();
+      });
+    }
+    if (miniJump) {
+      miniJump.addEventListener("click", function () {
+        if (wrap) wrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    }
+
+    // Track inline visibility relative to the (live) header height. We use a
+    // scroll/resize listener rather than IntersectionObserver because the header
+    // height changes on scroll-collapse, and rootMargin is frozen at observer
+    // construction. A rAF-throttled bounding-rect read is plenty fast for one element.
+    if (mini && wrap) {
+      function getHeaderOffset() {
+        const v = getComputedStyle(document.documentElement).getPropertyValue("--header-height").trim();
+        const n = parseInt(v, 10);
+        return isFinite(n) ? n : 64;
+      }
+
+      let rafPending = false;
+      function checkInline() {
+        rafPending = false;
+        const rect = wrap.getBoundingClientRect();
+        // Inline is "visible enough" while its bottom edge is below the header's bottom edge.
+        const newVisible = rect.bottom > getHeaderOffset();
+        if (newVisible !== inlineVisible) {
+          inlineVisible = newVisible;
+          updateMiniVisibility();
+        }
+      }
+      function onScrollOrResize() {
+        if (rafPending) return;
+        rafPending = true;
+        requestAnimationFrame(checkInline);
+      }
+      window.addEventListener("scroll", onScrollOrResize, { passive: true });
+      window.addEventListener("resize", onScrollOrResize, { passive: true });
+      checkInline();
     }
   })();
 </script>
