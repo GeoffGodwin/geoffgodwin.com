@@ -114,6 +114,7 @@ const { src, title } = Astro.props;
   class="post-audio-mini"
   data-visible="false"
   aria-hidden="true"
+  inert
   aria-label="Listen to this post (mini player)"
 >
   <div class="post-audio-mini-inner">
@@ -452,6 +453,20 @@ const { src, title } = Astro.props;
     opacity: 1;
   }
 
+  /* Respect users who've asked the OS to reduce motion. We collapse the
+     slide/fade animations to a near-instant fade so the mini still
+     transitions (a single sub-frame snap can be jarring too), but no
+     translateY motion that could trigger vestibular discomfort. */
+  @media (prefers-reduced-motion: reduce) {
+    .post-audio-mini {
+      transition: opacity 80ms linear;
+      transform: none !important;
+    }
+    .post-audio-mini[data-visible="true"] {
+      transform: none !important;
+    }
+  }
+
   /* Mobile: dock to bottom, drop progress + jump button, keep play/time/close */
   @media (max-width: 639px) {
     .post-audio-mini {
@@ -523,6 +538,15 @@ const { src, title } = Astro.props;
       if (mini) {
         mini.dataset.visible = show ? "true" : "false";
         mini.setAttribute("aria-hidden", show ? "false" : "true");
+        // `inert` removes the subtree from focus order and blurs any focused
+        // descendant. Without this, keyboard users would tab into invisible
+        // controls (and a user who dismissed via × would still be focused on
+        // the now-invisible × button).
+        if (show) {
+          mini.removeAttribute("inert");
+        } else {
+          mini.setAttribute("inert", "");
+        }
       }
       // Body-level flag so unrelated components (e.g. BackToTop) can react without
       // direct coupling to the audio player.
@@ -582,9 +606,22 @@ const { src, title } = Astro.props;
       if (currentEl) currentEl.textContent = t;
       if (miniCurrent) miniCurrent.textContent = t;
       if (audio.duration) {
-        const pct = (audio.currentTime / audio.duration * 100) + "%";
-        if (fill) fill.style.width = pct;
-        if (miniFill) miniFill.style.width = pct;
+        const ratio = audio.currentTime / audio.duration;
+        const pctStr = (ratio * 100) + "%";
+        if (fill) fill.style.width = pctStr;
+        if (miniFill) miniFill.style.width = pctStr;
+        // Keep sliders' ARIA state in sync with playback so assistive tech
+        // announces meaningful values (time, not just an opaque 0-100 number).
+        const ariaNow = String(Math.round(ratio * 100));
+        const ariaText = t + " of " + fmt(audio.duration);
+        if (track) {
+          track.setAttribute("aria-valuenow", ariaNow);
+          track.setAttribute("aria-valuetext", ariaText);
+        }
+        if (miniTrack) {
+          miniTrack.setAttribute("aria-valuenow", ariaNow);
+          miniTrack.setAttribute("aria-valuetext", ariaText);
+        }
       }
     });
 
