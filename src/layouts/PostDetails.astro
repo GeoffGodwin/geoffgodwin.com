@@ -596,6 +596,12 @@ const nextPost =
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* Allow the label and the Spotify button to stack when the viewport is
+       too narrow to fit both nowrap chips on one row. Without this they
+       force horizontal page overflow on phones around 360–412 CSS px wide
+       (e.g. the Galaxy Z Fold outer cover screen), which makes the whole
+       page render shifted left with a blank column on the right. */
+    flex-wrap: wrap;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
     padding: 0.5rem 0;
