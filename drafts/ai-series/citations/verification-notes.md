@@ -50,3 +50,19 @@ intervention lead to overinterpretation of model behaviour.
 - Whether the Lego block flip appears in Popov et al. (C-12).
 - Every author-stated limitation in C-5, C-6, C-7, C-18.
 - All figures and rates in C-8.
+
+## Second pass (after batch 7)
+
+**Harnad on LLMs (C-31) confirmed.** Harnad, "Language writ large: LLMs,
+ChatGPT, meaning, and understanding," Frontiers in Artificial Intelligence,
+DOI 10.3389/frai.2024.1490698, published 2025. Open access copies at
+https://eprints.soton.ac.uk/499055/2/frai-1-1490698.pdf and PMC11861094.
+
+The batch agent's warning about the title holds: the arXiv preprint
+(2402.02243) is titled "Language Writ Large: LLMs, ChatGPT, Grounding, Meaning
+and Understanding," which differs from the published version. Cite the
+published title.
+
+The dialogue-with-ChatGPT-4 form is confirmed by the search summary, so the
+post should introduce this source knowing that a reader who clicks through
+finds an unusual format. That is worth one clause rather than a footnote.
