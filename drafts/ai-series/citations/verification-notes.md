@@ -66,3 +66,32 @@ published title.
 The dialogue-with-ChatGPT-4 form is confirmed by the search summary, so the
 post should introduce this source knowing that a reader who clicks through
 finds an unusual format. That is worth one clause rather than a footnote.
+
+## Third pass (after batch 6)
+
+**Man and Damasio (2019) confirmed, with a caveat the outline should absorb.**
+Man, K. and Damasio, A., "Homeostasis and soft robotics in the design of
+feeling machines," Nature Machine Intelligence 1, 446-452 (2019),
+DOI 10.1038/s42256-019-0103-7.
+
+The batch recommended this over Damasio and Carvalho (2013) for part two
+section 3c, and I agree it does more work per word. But note what the paper
+actually argues, because it is not only a description of biological
+homeostasis. Its thesis is that an intelligent agent *should* hold
+self-preservation as a meta-goal, and that machines implementing something
+resembling homeostasis might thereby acquire a source of motivation and a
+means of evaluating their own behaviour.
+
+That is a design proposal. It supports the post's claim that current systems
+have nothing at stake, and it simultaneously argues the gap is engineerable in
+principle by someone who builds vulnerability into the substrate. A reader who
+clicks through finds a stronger claim than the sentence citing it. The post
+should either acknowledge that in a clause or cite Damasio and Carvalho (2013)
+for the narrower biological point and keep Man and Damasio for a place where
+the design argument is wanted.
+
+There is also a connection worth drawing deliberately rather than leaving for a
+reader to find: Man and Damasio propose building in the very meta-goal that
+part one explains as arising instrumentally without being built in. Those are
+compatible, and the contrast is useful, but the series should not cite this
+paper in part two while appearing unaware of what it says about part one.
