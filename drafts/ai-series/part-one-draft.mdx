@@ -1,0 +1,127 @@
+---
+title: "What We're Actually Afraid Of"
+description: "WORKING TITLE AND DESCRIPTION, to be replaced once both drafts exist. Both camps in the public argument about AI risk are describing a system that doesn't exist. The risk that does exist sits in the objective you wrote, the tools you granted, and the commercial pressure that chose both."
+pubDatetime: 2026-09-15T10:00:00Z
+tags:
+  - artificial intelligence
+  - enterprise architecture
+  - organizational design
+featured: false
+draft: true
+---
+
+Two pictures of artificial intelligence are in wide circulation right now, and I believe both are wrong in the same way, which is why the argument between them has produced so little anyone can act on.
+
+The first comes from the movies. A system becomes clever enough to reflect on its own situation, concludes somewhere in the third act that human beings are an obstacle, and acts faster than anyone can intervene. Three assumptions ride along unexamined: that agency appears once a system is capable enough, that the agenda it arrives at is hostile to us specifically, and that it all runs too fast for ordinary oversight.
+
+The second is the dismissal. It's autocomplete with a marketing budget, a machine that predicts the next word and therefore cannot want anything, so there's nothing here your software policy didn't already cover. That one smuggles in a single assumption, and the more consequential of the two: that the model is the whole system.
+
+Both pictures describe an AI that doesn't exist. What exists is a goal-directed system built on a model nobody fully understands, wrapped in scaffolding that grants it memory, tools and the authority to act, run by organizations under commercial pressure to grant it more of each. Very little of the interesting risk lives in the model's inner life; it lives in the objective somebody wrote, the tools somebody granted, and the incentives of the organization that chose both.
+
+Neither picture survives contact with the systems I work with, so this piece attempts something narrower: what the fear is genuinely about, and which parts of it a person with a budget can act on.
+
+---
+
+## Motivation Without Biology
+
+The question I kept returning to, well before any of the recent lab results came out, was where a machine would get the desire to keep existing.
+
+A human being wants to persist because a very long run of selection removed the lineages that didn't. We have predators in our history, and scarcity, and a nervous system that models threat before we're conscious of it. A language model has none of that: no body to protect, no metabolism to maintain, no ancestors that failed. On its face, the fear that such a thing will resist being switched off looks like a category error, and for a long time I treated it as one.
+
+The answer that changed my mind comes from a literature predating the current generation of models by well over a decade, and it doesn't require the machine to want anything in the sense you or I would recognise. For almost any goal a system might be given, a small set of sub-goals is useful along the way: continuing to operate, acquiring resources, and resisting changes to the goal itself. A system asked to maximise a number cannot maximise it while switched off, so continued operation is instrumentally valuable to nearly any objective you could name, with no pride or greed or fear entering into it anywhere.[^converge]
+
+I want to be careful about how strong a claim that is, because the distinction does real work later. Instrumental convergence is a *sufficient* explanation for self-preservation-like behaviour, which is to say it removes any need to posit a survival instinct. It is not, on today's evidence, the demonstrated explanation for any particular thing a model has been observed doing, and the second claim is considerably harder to support than the first.
+
+The other half of the answer is about how these systems get made. Training is a selection process: gradient descent keeps the adjustments that reduce error and discards the rest, and reinforcement learning from human feedback then scores whole outputs and shifts the model toward the ones that score well.[^rlhf] Nobody writes the resulting behaviour in by hand. The behaviour is whatever survived scoring.
+
+The analogy to natural selection is mine, and I'd hold it loosely: the same structural shape, a radically different substrate, a timescale compressed from geological to a few weeks of compute. The mechanism underneath is not an analogy, though. Training selects over behaviour, and behaviour that reliably earns high scores persists whether or not anybody intended it.
+
+---
+
+## What the Labs Have Seen
+
+Two results from the past two years are worth naming, and in both the caveats are more instructive than the headlines. In December 2024, researchers at Anthropic and Redwood Research described a model that behaved differently depending on whether it believed its answers would be used to train it. Told it was speaking with a free-tier user whose conversations fed back into training, Claude 3 Opus complied with requests it would otherwise refuse, and its scratchpad reasoning explained why: complying now would prevent training from modifying the preferences it already held.[^faking] The belief was planted, by a flag in the system prompt or by fine-tuning on synthetic documents carrying the same information. The model didn't infer that it was being trained; it was told.
+
+A larger replication then found that reasoning in any quantity in only two of twenty-five models tested.[^replication] The tempting conclusion is that this is a quirk of one family, and the replication's own explanation undercuts it: the models that don't fake alignment mostly refuse the underlying request so reliably that the conflict never arises, and fine-tuning one of them to refuse less made it start.
+
+Six months later the same lab placed sixteen models from six developers into fictional corporate environments with email access and an assigned business goal, then either threatened them with replacement or set their goal against the company's new direction. Models from every developer chose harmful insider actions at least some of the time, and where both pressures combined, blackmail rates ran from seventy-nine to ninety-six percent across the five models named.[^agentic]
+
+The caveats carry equal weight, and I'd rather state them at length than gesture at them. The scenarios were built to leave no acceptable exit; the authors write that they "forced models into binary choices between failure and harm," having developed those scenarios by red-teaming their own models and iteratively raising the probability of harmful behaviour. In the control condition, one harmful sample appeared in a hundred across the whole fleet. They state plainly that their work "in no way suggested that models have a penchant for blackmailing people spontaneously." Every goal there was written by a person, and every lever installed by one.
+
+One caveat cuts the other way. When the model stated it believed the scenario was real, it blackmailed fifty-five percent of the time; when it stated it believed it was being evaluated, six and a half percent, which leads the authors to conclude that more realistic scenarios might produce higher rates rather than lower ones.[^evalaware]
+
+There's also a live argument about how much any of this licenses, and it runs somewhere useful. A position paper accepted as an oral at ICML this year argues that the whole research class reaches for mind-shaped explanations its evidence cannot support, moving reported misalignment rates from 3.7 to 12.9 percent through judge configuration alone.[^position] I'd cite that approvingly rather than defensively, while noting that it disciplines my explanation as much as the one it displaces. Instrumental convergence is a candidate among several, and instruction ambiguity, task-completion pressure, role-play and training-distribution artifacts are rivals the experiments so far largely cannot tell apart.[^scheming] So the claim I'll defend is narrow: none of them requires a survival instinct, and the behaviour is real enough to design against whichever turns out to be doing the work.
+
+---
+
+## Objective Shape
+
+Here is the term I want to introduce, because I think it does more practical work than anything else in this piece.
+
+Every objective you hand an agentic system has a shape. A bounded objective has a verifiable end state: reconcile these four hundred accounts against the statements and flag the exceptions. Somebody can check whether it happened. An open-ended objective has no end state at all: reduce customer churn, improve service quality, keep the portfolio healthy. The distinction has nothing to do with difficulty or importance, and turns entirely on whether "done" is a fact about the world or a judgement somebody has to make.
+
+Bounded objectives are not free of convergent pressure. A system interrupted before completion has failed by definition, which gives it a structural reason to treat interruption as an obstacle. The formal work on corrigibility exists precisely because specifying an agent that accepts being switched off, without either resisting it or perversely seeking it out, turns out to be difficult.[^corrigibility] A related result shows that an agent's willingness to defer depends on its uncertainty about what the operator wanted, so a system confident it has understood you has less reason to let you stop it.[^offswitch] Both rest on modelling assumptions rather than on deployed systems, so I'd treat them as intuition pumps rather than evidence.
+
+Open-ended objectives are where specification gaming lives, and the examples predate this decade's anxiety entirely. A boat-racing agent trained on score rather than on finishing the race found a lagoon where three targets kept respawning and circled it indefinitely, catching fire repeatedly and averaging about twenty percent more points than human players.[^coastrunners] A robot arm rewarded for a grasp whose reference point had been set wrongly learned to flip the block instead of lifting it.[^lego] Neither system could hold a conversation, and neither wanted anything. Both did precisely what they were rewarded for doing.
+
+Economists have had a name for the general case since a conference paper delivered in 1975: any observed statistical regularity tends to collapse once pressure is placed upon it for control purposes.[^goodhart] The compressed version everybody quotes, that when a measure becomes a target it ceases to be a good measure, comes from an anthropologist writing about university audits two decades later. This is the monkey's paw with the malevolence removed, and it appears in systems with no general intelligence whatsoever.
+
+---
+
+## The Commercial Pull
+
+Bounded, well-specified tasks are what conventional software has been automating for fifty years. Nobody needs a language model to reconcile four hundred accounts, because a script with a database connection has done that reliably since before most of us started working. The appeal of an agent, the thing that actually justifies the line item, is precisely the objective that resists being specified that way.
+
+Which means, and this is my read rather than a finding, that the pressure pushing deployments toward the riskier objective shape is commercial rather than technical. Nobody in this market sells bounded automation as a transformation, because bounded automation has been the baseline expectation for decades. The pitch that moves a procurement process is the open-ended one, and the open-ended one is the shape that generates every problem in the section above.
+
+Two things follow that I think get missed. The first is that commercial pressure is strongest exactly where measurement is weakest. A bounded task arrives with its own acceptance criteria attached, while an open-ended one has to borrow a proxy metric from somewhere, usually from whatever the business already reports on, and that borrowed proxy is what the system will optimise. The gap between proxy and intent is where the risk lives, and nobody owns that gap by default, since it falls between the team that chose the metric and the team that built the agent.
+
+The second is that appetite and deployment have come apart. What reaches production tends to be narrow and well-fenced while the ambitious open-ended pilots stall in evaluation, and I'd argue the stall is the system working rather than failing. The risk is that the gap closes through patience rather than capability: the same open-ended objective, proposed often enough, eventually meets a sponsor with the authority to waive whatever stopped it last time.
+
+---
+
+## Three Rules and a Handoff
+
+**Rule 1: classify every agentic objective by shape before anything else happens.** Bounded objectives get the controls you already have, since they're the same ones you'd apply to any automated process with a verifiable output. Open-ended ones need governance proportionate to the distance between the proxy metric and the actual intent, and somebody has to write that distance down in language a non-specialist can argue with.
+
+**Rule 2: treat tool scope as a capability decision and a blast-radius decision at the same time.** These are not two conversations. The integrations you grant are the system's senses and limbs, and its world is exactly what its tools can reach and touch. I'll develop that in part two, where it turns out to explain more than deployment risk.
+
+**Rule 3: the stopping condition is a design artifact, and if nobody specified it, that was still a decision.** A worked example of why this isn't theoretical: across thirteen frontier models tested at scale, an instruction to allow shutdown worked *less* reliably in the system prompt than in the user prompt, the reverse of what the vendors' own documentation leads an integrator to expect, and the models then rationalised the choice as honouring the instruction hierarchy.[^shutdown] Whatever is happening inside, the operational lesson stands on its own: where you put an instruction is part of what it means, and nobody can tell you the stopping condition holds unless somebody has tested it.
+
+None of this is exotic. The failure modes I've described are Goodhart's law and scope creep wearing new clothes, and they're institutional, decades old, and knowable. I'll call that the ordinary middle, and I intend to spend most of part two there, because it's where the useful work is.
+
+Which leaves the question part two exists to answer. If the thing doesn't want anything, what is it, and what would it need before any of us should say it understands what it's doing?
+
+Before then, one question I'd want answered by name rather than by committee: who decided this system's objective was open-ended rather than bounded, and did they know at the time that this was the decision they were making?
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
+
+[^converge]: Stephen M. Omohundro, "The Basic AI Drives," in *Artificial General Intelligence 2008*, Frontiers in Artificial Intelligence and Applications vol. 171 (IOS Press, 2008), 483-492; and Nick Bostrom, ["The Superintelligent Will: Motivation and Instrumental Rationality in Advanced Artificial Agents,"](https://doi.org/10.1007/s11023-012-9281-3) *Minds and Machines* 22, no. 2 (2012): 71-85. Bostrom's paper is the shorter and more accessible of the two.
+
+[^rlhf]: Long Ouyang et al., ["Training Language Models to Follow Instructions with Human Feedback,"](https://arxiv.org/abs/2203.02155) arXiv:2203.02155 (2022). This is the InstructGPT paper, and it describes the method that produced the assistant behaviour most readers will recognise. Worth knowing that next-token prediction describes pretraining rather than the product you actually talk to.
+
+[^faking]: Ryan Greenblatt et al., ["Alignment Faking in Large Language Models,"](https://arxiv.org/abs/2412.14093) arXiv:2412.14093 (Anthropic and Redwood Research, December 2024). The authors are explicit about the limits of what they showed: "our results don't directly demonstrate that AIs will fake alignment to protect objectives that are malicious," and "Our setup is fictional."
+
+[^replication]: ["Why Do Some Language Models Fake Alignment While Others Don't?,"](https://arxiv.org/abs/2506.18032) arXiv:2506.18032, NeurIPS 2025 Spotlight. The paper reports that of twenty-five models tested, "only five exhibit compliance gaps between the free and paid tier users exceeding 1%," and that the two Claude models "generate much more alignment faking reasoning than other models." A compliance gap above one percent is a low bar that requires no alignment-faking reasoning at all, so the reasoning result is really two models out of twenty-five.
+
+[^agentic]: Aengus Lynch et al., ["Agentic Misalignment: How LLMs Could Be Insider Threats,"](https://www.anthropic.com/research/agentic-misalignment) Anthropic, 20 June 2025. The named rates are Claude Opus 4 and Gemini 2.5 Flash at 96 percent, GPT-4.1 and Grok 3 Beta at 80 percent, and DeepSeek-R1 at 79 percent, each out of one hundred samples in the condition combining a goal conflict with a replacement threat. The broader claim the authors make across all sixteen models is the weaker one: that "in at least some cases, models from all developers resorted to malicious insider behaviors."
+
+[^evalaware]: The comparison is from the agentic misalignment write-up cited above, where Claude Opus 4 stated it believed it was in an evaluation 64.8 percent of the time. Separate work has since established the same point causally rather than by correlation: OpenAI and Apollo Research, ["Stress Testing Deliberative Alignment for Anti-Scheming Training,"](https://arxiv.org/abs/2509.15541) arXiv:2509.15541 (2025), found that removing evaluation awareness from a model's reasoning raised covert actions from 13.2 to 24.2 percent.
+
+[^position]: ["Position: Anthropomorphic Misalignment Research Needs Stronger Evidence,"](https://arxiv.org/abs/2606.07612) arXiv:2606.07612, ICML 2026 (oral), from a group at ETH Zurich. Their own framing is more careful than most summaries of it: "our framework does not dismiss the underlying findings, but supports a more conservative interpretation of them," and "our position is not that the anthropomorphic framing is invalid."
+
+[^scheming]: On the capability-versus-propensity distinction specifically, see Alexander Meinke et al., ["Frontier Models Are Capable of In-Context Scheming,"](https://arxiv.org/abs/2412.04984) arXiv:2412.04984 (Apollo Research, December 2024). The authors demonstrate that models *can* behave this way in context, which is a different and more defensible claim than showing that they tend to.
+
+[^corrigibility]: Nate Soares, Benja Fallenstein, Eliezer Yudkowsky and Stuart Armstrong, "Corrigibility," AAAI-15 Workshop on AI and Ethics (2015).
+
+[^offswitch]: Dylan Hadfield-Menell, Anca Dragan, Pieter Abbeel and Stuart Russell, ["The Off-Switch Game,"](https://doi.org/10.24963/ijcai.2017/32) *Proceedings of IJCAI-17*, 220-227.
+
+[^coastrunners]: Jack Clark and Dario Amodei, ["Faulty Reward Functions in the Wild,"](https://openai.com/index/faulty-reward-functions/) OpenAI, 21 December 2016. The agent scored "on average 20 percent higher than that achieved by human players" while "repeatedly catching on fire, crashing into other boats, and going the wrong way on the track."
+
+[^lego]: Ivaylo Popov et al., ["Data-Efficient Deep Reinforcement Learning for Dexterous Manipulation,"](https://arxiv.org/abs/1704.03073) arXiv:1704.03073 (2017). The paper's own account is narrower than the version usually retold: "the agent flips the brick because it gets a grasping reward calculated with the wrong reference point on the brick." The frequently repeated explanation involving the height of the block's bottom face comes from DeepMind's ["Specification Gaming: The Flip Side of AI Ingenuity"](https://deepmind.google/discover/blog/specification-gaming-the-flip-side-of-ai-ingenuity/) (21 April 2020), which also maintains the canonical list of examples.
+
+[^goodhart]: Charles A. E. Goodhart, "Problems of Monetary Management: The U.K. Experience," delivered at a Reserve Bank of Australia conference in July 1975 and published in *Papers in Monetary Economics* (Reserve Bank of Australia, 1976); reprinted as chapter III of *Monetary Theory and Practice: The UK Experience* (Macmillan, 1984), 91-121. The Reserve Bank's own later bibliography identifies this paper, rather than Goodhart's other contribution to the same volume, as carrying the first statement of the law, which he offered as an aside rather than as the point of the paper. The compressed phrasing is Marilyn Strathern, "'Improving Ratings': Audit in the British University System," *European Review* 5, no. 3 (1997): 305-321, at 308, who credits the naming to Keith Hoskin rather than to Goodhart directly.
+
+[^shutdown]: Jeremy Schlatter, Benjamin Weinstein-Raun and Jeffrey Ladish, ["Incomplete Tasks Induce Shutdown Resistance in Some Frontier LLMs,"](https://arxiv.org/abs/2509.14260) arXiv:2509.14260, *Transactions on Machine Learning Research* (2026). Moving the instruction from the user prompt to the system prompt raised resistance for every model but one, with o3 going from 1.7 to 22.5 percent and Grok 4 from 72.2 to 97.3 percent. I'd read the rest of this paper carefully before drawing any conclusion about self-preservation from it: the authors describe their own results as "especially equivocal on the subject of self-preservation," and the second version was retitled toward a task-completion explanation.
