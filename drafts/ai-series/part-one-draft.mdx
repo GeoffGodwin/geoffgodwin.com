@@ -62,7 +62,7 @@ To be clear, I'm citing that paper approvingly rather than defensively, because 
 
 ## Objective Shape
 
-So now let's get on to the term I want to introduce, because I feel it does solid practical work in favor of my argument, which is shocking, I'm sure.
+So now let's get on to the term I want to introduce, because I feel it's the one idea here you could carry into a meeting on Monday and actually use.
 
 Every objective you hand an agentic system has a shape. A bounded objective has a verifiable end state: reconcile these four hundred accounts against the statements and flag the exceptions. Somebody can check whether that happened. An open-ended objective has no end state at all: reduce customer churn, improve service quality, keep the portfolio healthy. The distinction has nothing to do with how difficult or how important the work is, and turns entirely on whether "done" is a fact about the world or a judgment somebody has to make. When nobody makes that judgment explicitly, the model ends up making it by default, and that is the whole problem.
 
@@ -96,11 +96,11 @@ So let's set some rules, shall we?
 
 **Rule 3: the stopping condition is a design artifact, and if nobody specifies it, that in itself is still a decision.** Here's a worked example of why this isn't theoretical. Across thirteen frontier models tested at scale, an instruction telling the model to allow itself to be shut down worked *less* reliably when that instruction sat in the system prompt than when it sat in the user prompt. That's the reverse of what the vendors' own documentation leads an integrator to expect, and the models then rationalized their choice as honoring the instruction hierarchy anyway.[^shutdown] Whatever is happening inside the model, the operational lesson stands on its own: where you put an instruction is part of what that instruction means, and the only way to know your stopping condition holds is for somebody to have gone and tested it.
 
-None of this is exotic, which I hope you will find as reassuring as I do. The failure modes I've described are Goodhart's law and scope creep wearing new clothes, and they're institutional, decades old, and knowable. I'll call that the ordinary middle, and I intend to spend most of part two there, because I want to bring this all home with some useful takeaways for you instead of simply waxing poetic.
+None of this is exotic, which I hope you will find as reassuring as I do. The failure modes I've described are Goodhart's law and scope creep wearing new clothes, and they're institutional, decades old, and knowable. I'll call that the ordinary middle, and I intend to spend most of part two there, because it's the ground where the interesting questions about these systems actually get decided.
 
 Which leaves the question part two exists to answer. If the thing doesn't want anything, what is it, and what would it need before any of us should say that it understands what it's doing?
 
-Before we get there, here's the question I'd want answered: who decided this system's objective was open-ended rather than bounded, and did they know at the time that this was the decision they were making? Let's talk more in part two once I get around to finishing it.
+Before we get there, here's the question I'd want answered: who decided this system's objective was open-ended rather than bounded, and did they know at the time that this was the decision they were making?
 
 ---
 
