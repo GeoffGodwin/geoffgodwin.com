@@ -89,6 +89,13 @@ one unresolved referent is a bad trade in this voice, every time.
 Practical test: if a sentence contains "it," "this," "that" or "both" standing
 in for something more than one clause away, name the thing instead.
 
+Where this rule collides with rule 25, rule 25 wins. That last example is the
+case in point: decompressing "a model nobody fully understands" produced three
+stranded prepositions in a row, which is hard to follow out loud, so it was
+revised again to "a model we know how to design and train, even though what
+happens inside it stays largely opaque to us." Decompress by naming things,
+not by stacking qualifiers onto the end of a clause.
+
 ### 19. Cut literary flourish, keep conversational idiom
 
 The distinction is whether the phrase belongs to written English or to spoken
@@ -141,10 +148,55 @@ Paragraphs open with a connector that carries the argument forward rather than
 starting cold: "The thing is though," "So then based on that," "Now I do want
 to be careful," "So I started hunting."
 
+### 25. Keep the negation count to one per sentence, and never nest negatives
+
+Added after Geoff flagged this sentence in the second pass:
+
+> The models that don't fake alignment are mostly not incapable of faking it.
+
+Three negatives in twelve words: a negated relative clause in the subject, a
+negated copula, and a negative-prefixed adjective, with a hedge sitting on top
+of all of it. A reader can untangle that by going back over the line. A
+listener cannot go back, and this series ships as audio.
+
+The rule is to state the positive claim and then say what limits it, rather
+than negating a negation. The repair above became:
+
+> Most of the quiet models turn out to be perfectly capable of faking
+> alignment. What stops them is that they refuse the underlying request so
+> reliably that the conflict the experiment depends on never gets a chance to
+> arise.
+
+One exception, because it reads and listens well: a parallel list of negatives
+used deliberately as a figure is fine, as in "no body to protect, no metabolism
+to maintain, no ancestors that failed." The problem is nesting, not frequency.
+
+Two related audio failures belong under the same rule, since both were found in
+the same sweep.
+
+**Don't interrupt a negated verb before its complement.** "It is not, on the
+evidence we have today, the demonstrated explanation for..." makes a listener
+hold "is not" open across an eight-word aside. Move the aside to the front:
+"On the evidence we have today, though, it falls well short of being the
+demonstrated explanation for..."
+
+**Don't strand the main verb behind a long qualifier.** "specifying an agent
+that will accept being switched off, without either resisting the shutdown or
+perversely trying to trigger one, turns out to be genuinely hard" holds the
+verb back for twenty-two words. Put the verb early and let the qualification
+follow the colon: "one apparently simple specification turns out to be
+genuinely hard: the agent should accept being switched off, while neither
+resisting the shutdown nor perversely angling to trigger one."
+
+**The read-aloud test.** Before a draft is done, read any sentence over roughly
+thirty-five words out loud. If you have to restart it, restructure it.
+`prose-check.py` in this directory flags the mechanical cases.
+
 ## Open question, not yet a rule
 
 Geoff's pass consistently added words rather than removing them, which is in
-direct tension with a fixed word target. Sections 15, 16, 18 and 24 all cost
-words. The working assumption from here is that clarity and voice win and the
-word count is reported honestly rather than met by compression, but this has
-not been confirmed with him.
+direct tension with a fixed word target. Rules 15, 16, 18 and 24 all cost
+words, and rule 25 usually costs a few more. The working assumption from here
+is that clarity and voice win, and that the word count gets reported honestly
+rather than met by compression, since compression is what broke section 3 in
+the first place. Not yet confirmed with him.
