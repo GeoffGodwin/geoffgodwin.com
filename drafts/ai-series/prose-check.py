@@ -21,7 +21,8 @@ NEGATIONS = re.compile(
     re.I,
 )
 BRITISH = re.compile(
-    r"\b\w*(?:behaviour|organis|recognis|optimis|realise|realising|analys|"
+    r"\b\w*(?:behaviour|organisation|organise|organising|organised|recognis|"
+    r"optimis|realise|realising|analyse|analysing|analysed|"
     r"modelling|judgement|honour|maximis|rationalis|centre|licence)\w*\b",
     re.I,
 )
@@ -41,7 +42,14 @@ def sentences_of(text):
         if ln.strip() and not ln.strip().startswith(("#", "---", "|", "> "))
     ]
     flat = " ".join(lines)
-    return [s.strip() for s in re.split(r"(?<=[.?!])\s+", flat) if len(s.split()) > 2]
+    # Split after terminal punctuation, including when it sits inside a closing
+    # quote mark. Without the second alternative, a sentence ending on a quoted
+    # phrase gets glued to the next one and reports a false over-length hit.
+    return [
+        s.strip()
+        for s in re.split(r"(?<=[.?!][\"'”’])\s+|(?<=[.?!])\s+", flat)
+        if s and len(s.split()) > 2
+    ]
 
 
 def main(path):

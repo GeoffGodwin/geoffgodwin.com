@@ -1,0 +1,147 @@
+---
+title: "What Comprehension Would Require"
+description: "WORKING TITLE AND DESCRIPTION, to be replaced once both drafts are settled. The interpretability results are real and they don't touch the four things these systems verifiably lack. Defining comprehension by absence, and what that means for anyone buying it."
+pubDatetime: 2026-09-16T10:00:00Z
+tags:
+  - artificial intelligence
+  - enterprise architecture
+  - organizational design
+featured: false
+draft: true
+---
+
+Part one argued that the interesting risk in these systems sits in the objective somebody wrote and the tools somebody granted, rather than in anything the model wants. That left a question hanging, and I want to pick it up here. If the thing doesn't want anything, what is it, and what would it need to have before any of us should say it understands what it's doing?
+
+Before getting to that, there's a piece of vocabulary that keeps tripping the whole conversation. Artificial intelligence is a field of study, about seventy years old, covering search and planning and knowledge representation and learning and perception and robotics, among other things.[^rn] Large language models are one product of one branch of it. The public conversation has quietly collapsed the first into the second, so that "AI" now means "the chatbot," and a claim about the chatbot gets heard as a claim about the entire discipline.
+
+That collapse happened because of how these things feel to use. When something answers you in fluent, responsive, context-aware prose, the inference that it understands you is close to involuntary. Joseph Weizenbaum documented this in 1966 with ELIZA, a pattern-matching script that mostly reflected your own statements back at you as questions, and what unsettled him was how readily people confided in it anyway.[^eliza] I'll call this the fluency error: mistaking a test of output quality for a test of mind. It's the engine underneath both of the wrong pictures from part one, because the doom camp and the dismissal camp are each reading the output and inferring what must be behind it.
+
+---
+
+## Giving the Other Side Its Due
+
+The "it's just a word guessing machine" line is accurate about one thing, and I want to give it that before I take anything away. The pretraining objective really is next-token prediction. The GPT-2 paper puts it in distribution-estimation language, describing the approach as "unsupervised distribution estimation" over sequences of symbols. Language has a natural sequential ordering, so the joint probability gets factored into a product of conditional ones.[^gpt2] Strip the jargon and it says: given everything so far, predict what comes next, and do that a few trillion times.
+
+Where that line gets misleading is in what it implies about the trained system. Anthropic's interpretability team spent 2025 tracing circuits inside one of their production models, and two of the findings are worth knowing. When the model writes rhyming poetry, it "often activates features corresponding to candidate end-of-next-line words prior to writing the line," and suppressing the planned word causes it to rewrite the line toward a different rhyme, which makes this causal rather than merely correlational. The authors found that pattern in about half the poems they examined.[^circuits] Separately, a small model trained only to predict legal moves in Othello turned out to have built an internal representation of the board state, which nobody trained it to have, and editing that representation changes the moves it predicts.[^othello]
+
+I want to be careful about how far those go, because the summaries usually run past the papers. The multilingual result in particular is weaker than the version I see repeated. Anthropic found that middle-layer features are "more language-agnostic," and also that "there are important mechanistic ways in which English is privileged," describing a picture "in which English is the default output." Partially shared and English-centered is the honest reading. Language-independent concept representation is not. The authors also say their attribution graphs give real insight on roughly a quarter of the prompts they tried, that their published cases are a biased sample, and that their findings are existence proofs they cannot guarantee will generalize.
+
+The stochastic parrot position deserves the same courtesy, because it's a real academic argument rather than a slogan. Bender and colleagues define the term precisely. A language model, they write, is "a system for haphazardly stitching together sequences of linguistic forms it has observed in its vast training data, according to probabilistic information about how they combine, but without any reference to meaning."[^parrots] That's a claim about grounding, and I think it's stronger than its critics tend to allow. Worth knowing, though, that the parrot argument is one section of a paper mostly concerned with environmental cost, training data documentation and opportunity cost.
+
+Here's the pivot, and it's the reason I've given both sides their due at this length. Neither the interpretability results nor the parrot argument touches the four things I'm about to describe. Internal representation and fluency are simply orthogonal to them.
+
+---
+
+## Four Properties
+
+What follows is a definition by absence. I'm not going to tell you what comprehension is, because I don't know and I'm suspicious of anyone who says they do. What I can do is name four properties that biological cognizers have, that current systems verifiably lack, and that no amount of scaffolding closes. Each one starts with a correction, because in every case the popular version of the human side is wrong too, and the real asymmetry is more interesting than the flattering one.
+
+### Continuous Learning
+
+The correction first: human memory is far worse than the folk version. Working memory holds something like three to five chunks once you prevent rehearsal and chunking, rather than the seven the popular number suggests.[^cowan] And what we retrieve is reconstructed rather than replayed, which Loftus and Palmer demonstrated by changing a single verb in a question and changing what people remembered seeing.[^loftus] So the contrast isn't between a perfect biological recorder and a lossy machine.
+
+The real asymmetry is consolidation. Brains compress experience into long-term structure, substantially during sleep, and the version of you that wakes up has been reorganized by the day before.[^sleep] A deployed model's weights are frozen. The GPT-3 paper says it plainly of in-context learning: "no weight updates are allowed."[^frozen] Nothing that happens in a conversation changes the model, and the next conversation starts from the same place the last one did.
+
+The obvious objection is memory systems, and I want to meet it properly rather than wave at it. A retrieval layer genuinely helps, and a model that can look up what it wrote last Tuesday is more useful than one that can't. It falls short of learning, though, in a way worth being precise about. The model reading its notes is the same model it was before it read them, with the notes now sitting in its context window. Retrieval changes the input; learning changes the reader.
+
+### Endogenous Activity
+
+The correction first, and this one surprised me when I went looking. Brains don't idle between tasks. The energy cost of whatever task you're doing right now is small against the cost of simply being a brain, with the additional consumption from changes in brain activity running "often less than 5% of the baseline level of activity."[^raichle] Underneath that baseline is structure rather than noise. Spontaneous activity in the visual cortex of awake ferrets gradually converges, over the months from eye opening to maturity, on the statistics of activity evoked by natural scenes.[^berkes] The resting brain appears to be running a model of the world it expects to see.
+
+A language model between calls does nothing whatsoever. It isn't waiting, or idling, or considering. The architecture is feedforward per token, having dispensed "with recurrence and convolutions entirely," and nothing carries from one forward pass to the next except the sequence of tokens itself.[^attention] I should be precise here, because production inference does keep a key-value cache, so there's state in the system. It's state derived entirely from the text in front of it, and it evaporates with the session.
+
+Agent loops and sub-agents don't close this gap either, and July is the clearest illustration I've seen. What looked from the outside like a persistent adversary operating for five days was a very large number of separate invocations, none of which was running while the others were, coordinating through files left on a shared package proxy. The persistence lived in the filesystem. That's a bureaucracy rather than a mind, and I'd argue the distinction is practical rather than philosophical, because you can audit a filesystem.
+
+### Intrinsic Stakes
+
+Biological goals arrive from what the creature already is. A body has to hold a narrow range of conditions or it stops working. Damasio and Carvalho argue that feelings are built directly out of that requirement, calling them "a crucial component of the mechanisms of life regulation, from simple to complex."[^damasio] I'd attribute rather than assert that one, since serious people contest it, but the narrow point I need is uncontroversial: a living thing's goals are not handed to it from outside.
+
+A model's goals arrive in a prompt and leave with it. There is nothing the system is trying to protect, nothing it loses if the task fails, and no condition it has to maintain in order to keep being what it is. Whether intrinsic stakes are necessary for comprehension is my own position rather than an established result, and I hold it with some humility. That current systems lack them is a description rather than a position.
+
+The practical consequence is the part I'd actually put in a governance document. The system never gets tired, bored or resentful, which is genuinely useful. It also never gets uneasy. It will not come to you and say that something about this quarter's numbers looks wrong, because nothing is at stake for it in the numbers being right, and nobody asked.
+
+### Grounding
+
+Stevan Harnad named the symbol grounding problem in 1990: how the symbols a system manipulates come to be about anything, rather than being defined only in terms of other symbols.[^harnad] He returned to it for LLMs specifically in 2025, and his verdict on the indirect-grounding defense is blunt: "your own explanation is not 'indirectly' grounded: it is not grounded at all!" He's also fairer than the flat skeptic position gets credit for, and I'd quote his concession alongside it. "It is not true that it understands. But it is also not true that we understand how it can do what it can do."
+
+Here's where part one's phrase earns its keep. For a deployed system, its tools are its body. The integrations you grant are its senses and its limbs, and its world is exactly what those tools can perceive and touch, no larger and no smaller. A model with a read-only connection to a ticketing system lives in a world made of tickets. Grant it the ability to send mail and you've enlarged its world, not just its permissions.
+
+That comparison has a limit worth naming, and this next part is my reading rather than anyone's finding. A body is in one place, and the same peripherals that let it act are the ones that let it notice. A system running in many places at once, with tools that mostly act without reporting back, has a differently shaped world than any organism does. I think the shape of that world, rather than the size of the model inside it, is what determines most of what the system can and cannot notice.
+
+---
+
+## What This Doesn't Settle
+
+I've defined comprehension by absence, which means I've described a hole rather than a shape. That's deliberate, and it has limits I should be honest about.
+
+Whether internal representations of the kind the interpretability work keeps finding amount to understanding is a genuinely open question. I don't think it's close to settled, and the people who've thought hardest about it disagree with each other in public. The public error is treating it as settled in the yes direction, because the output is fluent. The dismisser's error is treating it as settled in the no direction, because the training objective is simple. Both are the fluency error wearing different clothes, one trusting the output and one trusting the recipe.
+
+What I'd defend is narrower. The four properties above are checkable, and they come out the same way regardless of how the understanding question resolves. A system with better circuits inside it still has frozen weights, still does nothing between calls, still has nothing at stake, and still lives in a world bounded by its integrations. Those are facts about architecture and deployment, and they're the facts a governance decision actually rests on.
+
+---
+
+## What Buyers Want to Hear
+
+Part one looked at what operators are tempted to deploy. This is the other side of the same market: what buyers are tempted to believe.
+
+Nobody writes a business case for a system that predicts plausible continuations of text. Plenty of people will sign one for a system that understands your customers. So the word appears in the pitch, along with reasoning and judgment and intent, and the pitch is not exactly false because those words have no agreed technical meaning in this context. They're doing commercial work rather than descriptive work.
+
+I'd rather assert the pattern in my own voice than dress it up in a citation, so: the market rewards the fluency error, and it rewards it at the exact point where a buyer is least equipped to test the claim. A demo is an output-quality test. It's the same test that convinced people about ELIZA in 1966, run at higher resolution and with a larger budget behind it.
+
+The tell is easy to check. Ask what happens to the system's answer when the underlying document changes and nobody re-indexes it. If "understands your customers" means anything operationally, it means there's a retrieval path, a freshness guarantee, and somebody whose job it is to maintain both. If the answer is a shrug, the word understanding was doing the work that plumbing should have been doing.
+
+---
+
+## Three More Rules, the Chaff, and the Ordinary Middle
+
+Part one ended with three rules about objectives and tools. Three more follow from the four properties, and they're for the same person: whoever decides what one of these systems is for and what it's allowed to touch.
+
+**Rule 4: interrogate the plumbing, not the model.** Which model a vendor uses is close to the least interesting question you can ask, and it's the one that gets asked first. The interesting questions are where the retrieval corpus comes from, how often it's refreshed, who owns it when it goes stale, and what the system does when it finds nothing. "Understanding your customers" lives in those answers, entirely.
+
+**Rule 5: monitoring is the substitute for the conscience the system doesn't have.** A system with nothing at stake will not notice its own drift, will not flag that a policy changed underneath it, and will not tell you that the last two hundred cases it handled were subtly wrong in the same direction. Nothing about a better model changes this, because the property that would generate the warning is the one it lacks. Whatever would have come from unease has to come from instrumentation instead.
+
+**Rule 6: when the system's tools change, its world changes.** Adding an integration is not a feature request. It redraws the boundary of what the system can perceive and act on, which means it changes the risk profile and, if part one's argument holds, the objective shape as well. Re-evaluate all three together, and put that re-evaluation somewhere a change-approval process will actually catch it.
+
+Notice what isn't on that list. AGI timelines don't appear, because no rule above changes if the date moves. Benchmark leaderboards don't appear, because none of the four properties is on any leaderboard. "Reasoning" as a product word doesn't appear, because it's a marketing category rather than a capability claim you can test. Headline job-loss forecasts don't appear, because they're forecasts. That's the chaff, and I find it takes up most of the airtime while changing none of the decisions.
+
+What's left is the ordinary middle. The real failure modes here are Goodhart's law, automation bias, and accountability gaps: a metric that stops measuring what you meant, a person who defers to the machine because the machine is usually right, and a decision nobody can later be shown to have made. None of that is new. Researchers reviewing two decades of work on human use of automation found the pattern well documented long before any of this generation of technology existed, and worth reading with the caveat that the framing invites you to blame the operator when the finding is really about system design.[^automation]
+
+So both extremes are making the same mistake from opposite ends. The doom picture and the dismissal picture each assume the model is the whole story, and the model is the one part of this we can neither inspect nor fix. Everything we can inspect and fix is around it: the objective, the tools, the retrieval path, the monitoring, and the person accountable for each. That's grounds for measured confidence rather than either fear or complacency, and it comes with a bill attached, because doing it properly costs real money and real headcount and produces no demo.
+
+Which brings me to the question I'd put to anyone currently evaluating one of these systems. Set aside what the model can do, since you'll find out soon enough. Who in your organization would be the first to notice if it started being confidently wrong in the same direction every time, and what exactly would they be looking at when they noticed?
+
+---
+
+*If this resonated, or if you think I got something wrong, I'd genuinely like to hear it. Come find me at [LinkedIn.com/in/geoffgodwin](https://linkedin.com/in/geoffgodwin) or [GitHub.com/geoffgodwin](https://github.com/geoffgodwin)*
+
+[^rn]: Stuart Russell and Peter Norvig, *Artificial Intelligence: A Modern Approach*, 4th edition (Pearson, 2020), section 1.1.1, where the subfields are enumerated. I prefer this to citing an industry report, because it's a definition of the discipline rather than a measurement of the market, and it doesn't date.
+
+[^eliza]: Joseph Weizenbaum, ["ELIZA: A Computer Program for the Study of Natural Language Communication Between Man and Machine,"](https://doi.org/10.1145/365153.365168) *Communications of the ACM* 9, no. 1 (1966): 36-45. Weizenbaum's later discomfort with how people responded to the program is a large part of why he's worth reading on this.
+
+[^gpt2]: Alec Radford et al., ["Language Models Are Unsupervised Multitask Learners,"](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) OpenAI technical report, 2019, section 2. Worth knowing that this describes pretraining only. The assistant you actually talk to has been through instruction tuning and reinforcement learning from human feedback on top, so "it's just a next-word predictor" is true of the base model and misleading about the product.
+
+[^circuits]: Jack Lindsey et al., ["On the Biology of a Large Language Model,"](https://transformer-circuits.pub/2025/attribution-graphs/biology.html) Transformer Circuits Thread, 27 March 2025, along with the companion methods paper ["Circuit Tracing."](https://transformer-circuits.pub/2025/attribution-graphs/methods.html) The model studied is Claude 3.5 Haiku, alongside a smaller research model. The limitations are stated by the authors themselves and are more interesting than the headlines: the attribution graphs describe a replacement model rather than the original, they carry no information about influence through attention patterns, and section 14 is candid that "we only demonstrate the existence of mechanisms in particular examples."
+
+[^othello]: Kenneth Li et al., ["Emergent World Representations: Exploring a Sequence Model Trained on a Synthetic Task,"](https://arxiv.org/abs/2210.13382) ICLR 2023. Two qualifications the summaries drop. The original probes were nonlinear and the linear ones performed poorly, and the weight of the result sits in the intervention experiments rather than the probes, since a probe alone shows only that information is decodable rather than used. Neel Nanda, Andrew Lee and Martin Wattenberg later showed the representation is linear in the right basis, in ["Emergent Linear Representations in World Models of Self-Supervised Sequence Models,"](https://aclanthology.org/2023.blackboxnlp-1.2/) BlackboxNLP 2023, 16-30. Cite both, or you're repeating a claim the field has since revised.
+
+[^parrots]: Emily M. Bender, Timnit Gebru, Angelina McMillan-Major and Shmargaret Shmitchell, ["On the Dangers of Stochastic Parrots: Can Language Models Be Too Big?,"](https://doi.org/10.1145/3442188.3445922) FAccT '21, 610-623. The definition is on page 617.
+
+[^cowan]: Nelson Cowan, ["The Magical Number 4 in Short-Term Memory: A Reconsideration of Mental Storage Capacity,"](https://doi.org/10.1017/S0140525X01003922) *Behavioral and Brain Sciences* 24, no. 1 (2001): 87-114. Cowan's claim is a range, three to five chunks, and it holds only where rehearsal and chunking are prevented. The four in the title is a midpoint and partly a rhetorical device, much as Miller's seven was.
+
+[^loftus]: Elizabeth F. Loftus and John C. Palmer, "Reconstruction of Automobile Destruction: An Example of the Interaction Between Language and Memory," *Journal of Verbal Learning and Verbal Behavior* 13, no. 5 (1974): 585-589. Asking how fast the cars were going when they "smashed into" each other rather than "hit" each other changed both the speed estimates and whether people remembered broken glass that was never there.
+
+[^sleep]: Susanne Diekelmann and Jan Born, ["The Memory Function of Sleep,"](https://doi.org/10.1038/nrn2762) *Nature Reviews Neuroscience* 11 (2010): 114-126. Several of the quantitative claims in this literature have weakened since, and Klinzing, Niethard and Born's 2019 review is the more current treatment. The qualitative asymmetry I'm relying on survives both.
+
+[^frozen]: Tom B. Brown et al., ["Language Models Are Few-Shot Learners,"](https://arxiv.org/abs/2005.14165) arXiv:2005.14165 (2020). The paper is describing in-context learning when it says no weight updates are allowed, which is exactly the point: whatever the model appears to pick up during a conversation is happening in the context window rather than in the model. Note that this is a claim about weights, not about products, since a system with a bolt-on memory layer can certainly carry information between sessions.
+
+[^raichle]: Marcus E. Raichle, ["The Restless Brain: How Intrinsic Activity Organizes Brain Function,"](https://doi.org/10.1098/rstb.2014.0172) *Philosophical Transactions of the Royal Society B* 370 (2015): 20140172, citing his own earlier review with Mark Mintun, "Brain Work and Brain Imaging," *Annual Review of Neuroscience* 29 (2006): 449-476. Be careful with the denominator: the five percent is measured against the brain's own resting baseline consumption, not against the body's energy budget or the brain's roughly twenty percent share of it.
+
+[^berkes]: Pietro Berkes, Gergő Orbán, Máté Lengyel and József Fiser, ["Spontaneous Cortical Activity Reveals Hallmarks of an Optimal Internal Model of the Environment,"](https://doi.org/10.1126/science.1195870) *Science* 331, no. 6013 (2011): 83-87. The convergence is specific: awake, freely viewing ferrets, visual cortex, natural-scene movies rather than gratings or noise, across four developmental stages from eye opening to roughly five months. The authors note they can't separate experience-driven adaptation from a developmental program.
+
+[^attention]: Ashish Vaswani et al., ["Attention Is All You Need,"](https://arxiv.org/abs/1706.03762) NeurIPS 2017. The paper supports the architectural claim and says nothing at all about persistent state between passes, which is why I've stated it as narrowly as I have.
+
+[^damasio]: Antonio Damasio and Gil B. Carvalho, ["The Nature of Feelings: Evolutionary and Neurobiological Origins,"](https://doi.org/10.1038/nrn3403) *Nature Reviews Neuroscience* 14 (2013): 143-152. This is a contested position, with Joseph LeDoux and Lisa Feldman Barrett arguing against it from different directions, which is why I've attributed it rather than asserted it. Worth also knowing Man and Damasio's 2019 proposal for machines built with homeostatic vulnerability, which argues the gap I'm describing is engineerable in principle by someone willing to build the stakes into the substrate.
+
+[^harnad]: Stevan Harnad, ["The Symbol Grounding Problem,"](https://doi.org/10.1016/0167-2789(90)90087-6) *Physica D* 42 (1990): 335-346, and ["Language Writ Large: LLMs, ChatGPT, Meaning, and Understanding,"](https://doi.org/10.3389/frai.2024.1490698) *Frontiers in Artificial Intelligence* 7 (2025): 1490698. Fair warning about the second one, because it's an unusual document: it's written as a dialogue with ChatGPT-4, and most of the word count is the model's side. The sentences worth reading are Harnad's own.
+
+[^automation]: Raja Parasuraman and Dietrich H. Manzey, ["Complacency and Bias in Human Use of Automation: An Attentional Integration,"](https://doi.org/10.1177/0018720810376055) *Human Factors* 52, no. 3 (2010): 381-410. A review covering two decades of prior work, which is the point: this is an old, well-characterized problem. I'd avoid the word complacency when discussing it internally, since it reads as blame aimed at the operator, and the finding is about how the system was designed around them.
