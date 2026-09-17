@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # Builds both drafts as temporary unlisted posts and reports footnote integrity.
-# Removes the temporary posts afterwards. Run from anywhere.
+# Pass --keep to leave the built pages in dist/ (link-check.py reads them).
 set -u
 cd ~/workspace/geoffgodwin/geoffgodwin.com || exit 1
+
+KEEP=0
+[ "${1:-}" = "--keep" ] && KEEP=1
 
 for f in part-one part-two; do
   sed -e 's/^draft: true/draft: false/' \
@@ -24,5 +27,11 @@ for f in part-one part-two; do
   fi
 done
 
+# The source .mdx copies always go; they must never be committed.
 rm -f src/data/blog/zz-part-one.mdx src/data/blog/zz-part-two.mdx
-rm -rf dist/posts/zz-part-one dist/posts/zz-part-two
+
+if [ "$KEEP" -eq 0 ]; then
+  rm -rf dist/posts/zz-part-one dist/posts/zz-part-two
+else
+  echo "(built pages kept in dist/posts/ for link checking)"
+fi
