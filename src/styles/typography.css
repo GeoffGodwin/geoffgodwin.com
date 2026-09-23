@@ -173,6 +173,27 @@
       opacity: 0.7;
     }
 
+    /* ===== Footnotes fold (sources and notes) ===== */
+    .footnotes {
+      @apply mt-12;
+    }
+
+    details.footnotes-fold {
+      @apply cursor-auto select-text;
+    }
+
+    details.footnotes-fold > summary {
+      @apply cursor-pointer select-none;
+    }
+
+    details.footnotes-fold p {
+      @apply block;
+    }
+
+    details.footnotes-fold > ol {
+      @apply my-0 border-t border-border/15 px-6 pt-3 pb-4 text-sm;
+    }
+
     /* TOC inner list container */
     details > ul {
       @apply relative mx-0 mt-0 mb-0 border-t border-border/15 px-4 pt-2 pb-3;

@@ -369,6 +369,28 @@ const nextPost =
 </Layout>
 
 <script is:inline data-astro-rerun>
+  /** Open the collapsed footnotes fold whenever a footnote link is used,
+   *  so the jump lands on visible text. */
+  function openFootnoteFold(hash) {
+    if (!hash || !hash.startsWith("#user-content-fn")) return;
+    const target = document.getElementById(decodeURIComponent(hash.slice(1)));
+    const fold = target && target.closest("details.footnotes-fold");
+    if (!fold) return;
+    const wasClosed = !fold.open;
+    fold.open = true;
+    // If the jump already happened while the fold was closed, land it now.
+    if (wasClosed) requestAnimationFrame(() => target.scrollIntoView());
+  }
+  if (!window.__footnoteFoldBound) {
+    window.__footnoteFoldBound = true;
+    document.addEventListener("click", e => {
+      const link = e.target.closest && e.target.closest("a[data-footnote-ref]");
+      if (link) openFootnoteFold(link.getAttribute("href"));
+    }, true);
+    window.addEventListener("hashchange", () => openFootnoteFold(location.hash));
+  }
+  openFootnoteFold(location.hash);
+
   /** Create a progress indicator
    *  at the top */
   function createProgressBar() {
